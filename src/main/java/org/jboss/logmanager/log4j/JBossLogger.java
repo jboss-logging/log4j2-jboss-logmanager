@@ -26,6 +26,13 @@ import org.apache.logging.log4j.message.MessageFactory;
 import org.apache.logging.log4j.spi.AbstractLogger;
 
 /**
+ * An implementation of a log4j2 {@linkplain org.apache.logging.log4j.Logger logger} that delegates to a JBoss Log
+ * Manager logger.
+ * <p>
+ * Only the {@linkplain Level level} is used to determine the result {@code isEnabled()} methods. All other parameters
+ * are ignored.
+ * </p>
+ *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 class JBossLogger extends AbstractLogger {
@@ -124,7 +131,10 @@ class JBossLogger extends AbstractLogger {
 
     @Override
     public void logMessage(final String fqcn, final Level level, final Marker marker, final Message message, final Throwable t) {
-        logger.log(fqcn, levelTranslator.translateLevel(level), message.getFormattedMessage(), t);
+        // Ignore null messages
+        if (message != null) {
+            logger.log(fqcn, levelTranslator.translateLevel(level), message.getFormattedMessage(), t);
+        }
     }
 
     @Override

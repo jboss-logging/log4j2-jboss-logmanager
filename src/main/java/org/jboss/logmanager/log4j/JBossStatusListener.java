@@ -30,7 +30,9 @@ import org.jboss.logmanager.Logger;
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
+// TODO (jrp) it's possible we could just get rid of this in favor of StatusConsoleListener
 class JBossStatusListener implements StatusListener {
+    // TODO (jrp) should be writing directly to System.out? Seems wrong though.
     private final Logger logger = Logger.getLogger("org.jboss.logmanager.log4j.status");
     private final LevelTranslator levelTranslator = LevelTranslator.getInstance();
     private final Level level;

@@ -43,9 +43,11 @@
 
     <properties>
         <version.junit>4.12</version.junit>
-        <version.org.apache.logging.log4j>2.6.2</version.org.apache.logging.log4j>
-        <version.org.jboss.logmanager.jboss-logmanager>2.0.4.Final</version.org.jboss.logmanager.jboss-logmanager>
+        <!-- TODO (jrp) maybe we should target an older version, 2.6.x, of log4j2 -->
+        <version.org.apache.logging.log4j>2.8.2</version.org.apache.logging.log4j>
+        <version.org.jboss.logmanager.jboss-logmanager>2.0.6.Final</version.org.jboss.logmanager.jboss-logmanager>
 
+        <!-- TODO (jrp) log4j2 is 1.7, but should we go 1.8 -->
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
     </properties>

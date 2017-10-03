@@ -31,8 +31,11 @@ import org.jboss.logmanager.LogContext;
 import org.jboss.logmanager.Logger;
 
 /**
+ * A context factory backed by JBoss Log Manager.
+ *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
+// TODO (jrp) what happens with attachments when two class loaders try to use the same logger name?
 public class JBossLoggerContextFactory implements LoggerContextFactory {
     private static final Logger.AttachmentKey<LoggerContextFactory> CONTEXT_FACTORY_KEY = new Logger.AttachmentKey<>();
     private static final Logger.AttachmentKey<LoggerContext> CONTEXT_KEY = new Logger.AttachmentKey<>();
@@ -53,6 +56,7 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
         try {
             return getLoggerContext(loader, externalContext, currentContext);
         } finally {
+            // Done in a finally block as the StatusLogger may not be configured until the call to getLoggerContext()
             if (configLocation != null) {
                 StatusLogger.getLogger().warn("Configuration is not allowed for the JBoss Log Manager binding. Ignoring configuration file {}.", configLocation);
             }
@@ -61,7 +65,7 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
 
     @Override
     public void removeContext(final LoggerContext context) {
-        // TODO (jrp) we may need to consider not actually removing the context if this is the SystemLogContext()
+        // TODO (jrp) we may need to consider not actually removing the context if this is the LogContext.getSystemLogContext()
         final LogContext logContext = LogContext.getLogContext();
         final LoggerContext currentContext = logContext.getAttachment("", CONTEXT_KEY);
         if (currentContext != null && currentContext.equals(context)) {

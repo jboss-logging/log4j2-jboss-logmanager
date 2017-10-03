@@ -28,6 +28,8 @@ import java.util.concurrent.ConcurrentMap;
 import org.apache.logging.log4j.Level;
 
 /**
+ * A utility to translate levels.
+ *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 class LevelTranslator {
@@ -47,10 +49,22 @@ class LevelTranslator {
         initLevels(julToLog4jLevels, log4jToJulLevels);
     }
 
+    /**
+     * Returns an instance of the level translator.
+     *
+     * @return an instance
+     */
     static LevelTranslator getInstance() {
         return Holder.INSTANCE;
     }
 
+    /**
+     * Translates a {@linkplain Level log4j level} to a {@linkplain java.util.logging.Level JUL level}.
+     *
+     * @param level the log4j level
+     *
+     * @return the closest match of a JUL level
+     */
     java.util.logging.Level translateLevel(final Level level) {
         java.util.logging.Level result = log4jToJulLevels.get(level);
         if (result == null) {
@@ -68,7 +82,15 @@ class LevelTranslator {
         return result;
     }
 
+    /**
+     * Translates a {@linkplain java.util.logging.Level JUL level} to a {@linkplain Level log4j level}.
+     *
+     * @param level the JUL level
+     *
+     * @return the log4j level
+     */
     Level translateLevel(final java.util.logging.Level level) {
+        // TODO (jrp) this won't account for SEVERE, WARNING, FINE, FINEST, etc.
         final Level result = julToLog4jLevels.get(level);
         return result == null ? Level.INFO : result;
     }
@@ -82,6 +104,17 @@ class LevelTranslator {
         addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.ERROR, Level.ERROR);
         addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.FATAL, Level.FATAL);
         addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.OFF, Level.OFF);
+
+        // TODO (jrp) minor note it looks like log4j levels use a reverse int level
+
+        // Add JUL levels
+        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.FINE, Level.DEBUG);
+        // TODO (jrp) are FINER, FINEST and CONFIG right?
+        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.FINER, Level.TRACE);
+        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.FINEST, Level.TRACE);
+        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.CONFIG, Level.TRACE);
+        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.WARNING, Level.WARN);
+        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.SEVERE, Level.FATAL);
     }
 
     private static void addLevel(final Map<java.util.logging.Level, Level> julToLog4jLevels, final Map<Level, java.util.logging.Level> log4jToJulLevels,

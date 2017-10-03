@@ -20,12 +20,15 @@
 package org.jboss.logmanager.log4j;
 
 import org.apache.logging.log4j.message.MessageFactory;
+import org.apache.logging.log4j.spi.AbstractLogger;
 import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.apache.logging.log4j.spi.LoggerContext;
 import org.jboss.logmanager.LogContext;
 import org.jboss.logmanager.Logger;
 
 /**
+ * Represents a {@link LoggerContext} backed by a {@link LogContext}.
+ *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 class JBossLoggerContext implements LoggerContext {
@@ -33,6 +36,12 @@ class JBossLoggerContext implements LoggerContext {
     private final LogContext logContext;
     private final Object externalContext;
 
+    /**
+     * Creates a new logger context.
+     *
+     * @param logContext      the JBoss Log Manager context to use
+     * @param externalContext the external context provided
+     */
     JBossLoggerContext(final LogContext logContext, final Object externalContext) {
         this.logContext = logContext;
         this.externalContext = externalContext;
@@ -80,11 +89,14 @@ class JBossLoggerContext implements LoggerContext {
 
     @Override
     public boolean hasLogger(final String name, final MessageFactory messageFactory) {
-        return hasLogger(name) && getLogger(name).getMessageFactory().getClass() == messageFactory.getClass();
+        return messageFactory == null ?
+                hasLogger(name, AbstractLogger.DEFAULT_MESSAGE_FACTORY_CLASS) :
+                hasLogger(name, messageFactory.getClass());
     }
 
     @Override
     public boolean hasLogger(final String name, final Class<? extends MessageFactory> messageFactoryClass) {
-        return hasLogger(name) && getLogger(name).getMessageFactory().getClass() == messageFactoryClass;
+        final ExtendedLogger logger = logContext.getAttachment(name, LOGGER_KEY);
+        return logger != null && logger.getMessageFactory().getClass() == messageFactoryClass;
     }
 }
