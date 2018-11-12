@@ -19,34 +19,42 @@
 
 package org.jboss.logmanager.log4j;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.status.StatusData;
 import org.apache.logging.log4j.status.StatusListener;
-import org.apache.logging.log4j.util.PropertiesUtil;
+import org.apache.logging.log4j.status.StatusLogger;
+import org.jboss.logmanager.LogContext;
 import org.jboss.logmanager.Logger;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-// TODO (jrp) it's possible we could just get rid of this in favor of StatusConsoleListener
 class JBossStatusListener implements StatusListener {
-    // TODO (jrp) should be writing directly to System.out? Seems wrong though.
-    private final Logger logger = Logger.getLogger("org.jboss.logmanager.log4j.status");
+    private static final String NAME = "org.jboss.logmanager.log4j.status";
+    private static final Logger.AttachmentKey<StatusListener> STATUS_LISTENER_KEY = new Logger.AttachmentKey<>();
+    private final Logger logger;
     private final LevelTranslator levelTranslator = LevelTranslator.getInstance();
     private final Level level;
 
-    JBossStatusListener() {
-        // TODO (jrp) we may need to look at other properties files, this defaults to log4j.component.properties
-        final PropertiesUtil properties = PropertiesUtil.getProperties();
-        // TODO (jrp) may need to look at other properties, e.g. Log4jDefaultStatusLevel
-        final String stringLevel = properties.getStringProperty("log4j2.StatusLogger.level", "WARN");
-        Level level = Level.getLevel(stringLevel);
-        if (level == null) {
-            level = Level.WARN;
+    private JBossStatusListener(final Logger logger) {
+        this.logger = logger;
+        level = StatusLogger.getLogger().getLevel();
+    }
+
+    static void registerIfAbsent(final LogContext logContext) {
+        final Logger logger = logContext.getLogger(NAME);
+        StatusListener listener = logger.getAttachment(STATUS_LISTENER_KEY);
+        if (listener == null) {
+            listener = new JBossStatusListener(logger);
+            if (logger.attachIfAbsent(STATUS_LISTENER_KEY, listener) == null) {
+                StatusLogger.getLogger().registerListener(listener);
+            }
         }
-        this.level = level;
+    }
+
+    static void remove(final LogContext logContext) {
+        final Logger logger = logContext.getLogger(NAME);
+        logger.detach(STATUS_LISTENER_KEY);
     }
 
     @Override
@@ -64,8 +72,8 @@ class JBossStatusListener implements StatusListener {
     }
 
     @Override
-    public void close() throws IOException {
-        // Nothing to do here
+    public void close() {
+        logger.detach(STATUS_LISTENER_KEY);
     }
 
 }

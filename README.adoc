@@ -1,0 +1,26 @@
+= A log4j2 implementation for JBoss Log Manager
+
+An implementation of the log4j-api for the jboss-logmanager.
+
+== Usage
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-api</artifactId>
+    <version>${version.org.apache.logging.log4j}</version>
+</dependency>
+<dependency>
+    <groupId>org.jboss.logmanager</groupId>
+    <artifactId>log4j2-jboss-logmanager</artifactId>
+    <version>${version.org.jboss.logmanager.log4j2-jboss-logmanager}</version>
+</dependency>
+----
+
+
+== Building
+
+----
+mvn clean install
+----

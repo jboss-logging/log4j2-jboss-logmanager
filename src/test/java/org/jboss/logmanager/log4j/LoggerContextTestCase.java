@@ -1,7 +1,7 @@
 /*
  * JBoss, Home of Professional Open Source.
  *
- * Copyright 2016 Red Hat, Inc., and individual contributors
+ * Copyright 2018 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,18 +20,28 @@
 package org.jboss.logmanager.log4j;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.spi.LoggerContextFactory;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.spi.LoggerContext;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class LoggerContextFactoryTestCase {
+public class LoggerContextTestCase extends AbstractTestCase {
 
     @Test
-    public void testCorrectFactory() {
-        final LoggerContextFactory factory = LogManager.getFactory();
-        Assert.assertEquals(JBossLoggerContextFactory.class, factory.getClass());
+    public void testHasLogger() {
+        final LoggerContext loggerContext = LogManager.getContext();
+        final Logger logger = LogManager.getFormatterLogger(LoggerTestCase.class);
+        Assert.assertFalse(loggerContext.hasLogger("org.jboss.logmanager"));
+        Assert.assertTrue(loggerContext.hasLogger(logger.getName()));
+    }
+
+    @Test
+    public void testExternalContext() {
+        final Object externalContext = new Object();
+        final LoggerContext loggerContext = LogManager.getContext(LoggerContextTestCase.class.getClassLoader(), true, externalContext);
+        Assert.assertEquals(externalContext, loggerContext.getExternalContext());
     }
 }

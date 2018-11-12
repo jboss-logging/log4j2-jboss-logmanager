@@ -1,7 +1,7 @@
 /*
  * JBoss, Home of Professional Open Source.
  *
- * Copyright 2016 Red Hat, Inc., and individual contributors
+ * Copyright 2017 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,19 +19,14 @@
 
 package org.jboss.logmanager.log4j;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.spi.LoggerContextFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.apache.logging.log4j.spi.Provider;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class LoggerContextFactoryTestCase {
+public class JBossProvider extends Provider {
 
-    @Test
-    public void testCorrectFactory() {
-        final LoggerContextFactory factory = LogManager.getFactory();
-        Assert.assertEquals(JBossLoggerContextFactory.class, factory.getClass());
+    public JBossProvider() {
+        super(5, "2.6.0", JBossLoggerContextFactory.class);
     }
 }

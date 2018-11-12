@@ -19,11 +19,8 @@
 
 package org.jboss.logmanager.log4j;
 
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.apache.logging.log4j.Level;
 
@@ -33,20 +30,37 @@ import org.apache.logging.log4j.Level;
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 class LevelTranslator {
-    private final Map<java.util.logging.Level, Level> julToLog4jLevels = new TreeMap<>(new Comparator<java.util.logging.Level>() {
-        @Override
-        public int compare(final java.util.logging.Level o1, final java.util.logging.Level o2) {
-            return Integer.compare(o1.intValue(), o2.intValue());
-        }
-    });
-    private final ConcurrentMap<Level, java.util.logging.Level> log4jToJulLevels = new ConcurrentHashMap<>();
+    private final Map<Integer, Level> julToLog4j = new HashMap<>();
+    private final Map<Integer, java.util.logging.Level> log4jToJul = new HashMap<>();
 
     private static class Holder {
         static final LevelTranslator INSTANCE = new LevelTranslator();
     }
 
     private LevelTranslator() {
-        initLevels(julToLog4jLevels, log4jToJulLevels);
+        // Add JUL levels
+        julToLog4j.put(java.util.logging.Level.FINEST.intValue(), Level.TRACE);
+        // This has a intValue() of 700 which is really between INFO and DEBUG, we'll default to DEBUG
+        julToLog4j.put(java.util.logging.Level.CONFIG.intValue(), Level.DEBUG);
+
+        // Note these should be added last to override any values that match
+        julToLog4j.put(org.jboss.logmanager.Level.ALL.intValue(), Level.ALL);
+        julToLog4j.put(org.jboss.logmanager.Level.TRACE.intValue(), Level.TRACE);
+        julToLog4j.put(org.jboss.logmanager.Level.DEBUG.intValue(), Level.DEBUG);
+        julToLog4j.put(org.jboss.logmanager.Level.INFO.intValue(), Level.INFO);
+        julToLog4j.put(org.jboss.logmanager.Level.WARN.intValue(), Level.WARN);
+        julToLog4j.put(org.jboss.logmanager.Level.ERROR.intValue(), Level.ERROR);
+        julToLog4j.put(org.jboss.logmanager.Level.FATAL.intValue(), Level.FATAL);
+        julToLog4j.put(org.jboss.logmanager.Level.OFF.intValue(), Level.OFF);
+
+        log4jToJul.put(Level.ALL.intLevel(), org.jboss.logmanager.Level.ALL);
+        log4jToJul.put(Level.TRACE.intLevel(), org.jboss.logmanager.Level.TRACE);
+        log4jToJul.put(Level.DEBUG.intLevel(), org.jboss.logmanager.Level.DEBUG);
+        log4jToJul.put(Level.INFO.intLevel(), org.jboss.logmanager.Level.INFO);
+        log4jToJul.put(Level.WARN.intLevel(), org.jboss.logmanager.Level.WARN);
+        log4jToJul.put(Level.ERROR.intLevel(), org.jboss.logmanager.Level.ERROR);
+        log4jToJul.put(Level.FATAL.intLevel(), org.jboss.logmanager.Level.FATAL);
+        log4jToJul.put(Level.OFF.intLevel(), org.jboss.logmanager.Level.OFF);
     }
 
     /**
@@ -66,20 +80,8 @@ class LevelTranslator {
      * @return the closest match of a JUL level
      */
     java.util.logging.Level translateLevel(final Level level) {
-        java.util.logging.Level result = log4jToJulLevels.get(level);
-        if (result == null) {
-            // Determine closest level
-            final int log4jLevel = level.intLevel();
-            result = java.util.logging.Level.ALL;
-            for (final java.util.logging.Level current : julToLog4jLevels.keySet()) {
-                if (current.intValue() > log4jLevel) {
-                    break;
-                }
-                result = current;
-            }
-            log4jToJulLevels.putIfAbsent(level, result);
-        }
-        return result;
+        final java.util.logging.Level result = log4jToJul.get(level.intLevel());
+        return result == null ? org.jboss.logmanager.Level.INFO : result;
     }
 
     /**
@@ -90,36 +92,7 @@ class LevelTranslator {
      * @return the log4j level
      */
     Level translateLevel(final java.util.logging.Level level) {
-        // TODO (jrp) this won't account for SEVERE, WARNING, FINE, FINEST, etc.
-        final Level result = julToLog4jLevels.get(level);
+        final Level result = julToLog4j.get(level.intValue());
         return result == null ? Level.INFO : result;
-    }
-
-    private static void initLevels(final Map<java.util.logging.Level, Level> julToLog4jLevels, final Map<Level, java.util.logging.Level> log4jToJulLevels) {
-        addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.ALL, Level.ALL);
-        addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.TRACE, Level.TRACE);
-        addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.DEBUG, Level.DEBUG);
-        addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.INFO, Level.INFO);
-        addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.WARN, Level.WARN);
-        addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.ERROR, Level.ERROR);
-        addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.FATAL, Level.FATAL);
-        addLevel(julToLog4jLevels, log4jToJulLevels, org.jboss.logmanager.Level.OFF, Level.OFF);
-
-        // TODO (jrp) minor note it looks like log4j levels use a reverse int level
-
-        // Add JUL levels
-        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.FINE, Level.DEBUG);
-        // TODO (jrp) are FINER, FINEST and CONFIG right?
-        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.FINER, Level.TRACE);
-        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.FINEST, Level.TRACE);
-        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.CONFIG, Level.TRACE);
-        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.WARNING, Level.WARN);
-        addLevel(julToLog4jLevels, log4jToJulLevels, java.util.logging.Level.SEVERE, Level.FATAL);
-    }
-
-    private static void addLevel(final Map<java.util.logging.Level, Level> julToLog4jLevels, final Map<Level, java.util.logging.Level> log4jToJulLevels,
-                                 final java.util.logging.Level julLevel, final Level log4jLevel) {
-        julToLog4jLevels.put(julLevel, log4jLevel);
-        log4jToJulLevels.put(log4jLevel, julLevel);
     }
 }

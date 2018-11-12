@@ -19,11 +19,16 @@
 
 package org.jboss.logmanager.log4j;
 
+import java.util.Collections;
+import java.util.Iterator;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MessageFactory;
 import org.apache.logging.log4j.spi.AbstractLogger;
+import org.jboss.logmanager.ExtLogRecord;
 
 /**
  * An implementation of a log4j2 {@linkplain org.apache.logging.log4j.Logger logger} that delegates to a JBoss Log
@@ -133,12 +138,37 @@ class JBossLogger extends AbstractLogger {
     public void logMessage(final String fqcn, final Level level, final Marker marker, final Message message, final Throwable t) {
         // Ignore null messages
         if (message != null) {
-            logger.log(fqcn, levelTranslator.translateLevel(level), message.getFormattedMessage(), t);
+            final ExtLogRecord record = new ExtLogRecord(levelTranslator.translateLevel(level),
+                    message.getFormattedMessage(), ExtLogRecord.FormatStyle.NO_FORMAT, fqcn);
+            if (ThreadContext.isEmpty()) {
+                record.setMdc(Collections.emptyMap());
+            } else {
+                record.setMdc(ThreadContext.getContext());
+            }
+            record.setNdc(getNdc());
+            record.setThrown(t);
+            logger.log(record);
         }
     }
 
     @Override
     public Level getLevel() {
         return levelTranslator.translateLevel(logger.getLevel());
+    }
+
+    private String getNdc() {
+        final ThreadContext.ContextStack contextStack = ThreadContext.getImmutableStack();
+        if (contextStack.isEmpty()) {
+            return "";
+        }
+        final StringBuilder result = new StringBuilder();
+        final Iterator<String> iter = contextStack.iterator();
+        while (iter.hasNext()) {
+            result.append(iter.next());
+            if (iter.hasNext()) {
+                result.append('.');
+            }
+        }
+        return result.toString();
     }
 }

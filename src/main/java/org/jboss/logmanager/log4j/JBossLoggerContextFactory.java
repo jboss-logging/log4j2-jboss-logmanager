@@ -22,10 +22,13 @@ package org.jboss.logmanager.log4j;
 import java.net.URI;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.logging.log4j.spi.LoggerContext;
 import org.apache.logging.log4j.spi.LoggerContextFactory;
-import org.apache.logging.log4j.status.StatusListener;
 import org.apache.logging.log4j.status.StatusLogger;
 import org.jboss.logmanager.LogContext;
 import org.jboss.logmanager.Logger;
@@ -35,16 +38,9 @@ import org.jboss.logmanager.Logger;
  *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-// TODO (jrp) what happens with attachments when two class loaders try to use the same logger name?
+@SuppressWarnings({"SynchronizationOnLocalVariableOrMethodParameter", "Convert2Lambda"})
 public class JBossLoggerContextFactory implements LoggerContextFactory {
-    private static final Logger.AttachmentKey<LoggerContextFactory> CONTEXT_FACTORY_KEY = new Logger.AttachmentKey<>();
-    private static final Logger.AttachmentKey<LoggerContext> CONTEXT_KEY = new Logger.AttachmentKey<>();
-    private static final Logger.AttachmentKey<StatusListener> LISTENER_KEY = new Logger.AttachmentKey<>();
-
-    static {
-        // Configure a StatusListener on the system log context
-        configureStatusListener(LogContext.getSystemLogContext());
-    }
+    private static final Logger.AttachmentKey<Map<Object, LoggerContext>> CONTEXT_KEY = new Logger.AttachmentKey<>();
 
     @Override
     public LoggerContext getContext(final String fqcn, final ClassLoader loader, final Object externalContext, final boolean currentContext) {
@@ -65,55 +61,58 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
 
     @Override
     public void removeContext(final LoggerContext context) {
-        // TODO (jrp) we may need to consider not actually removing the context if this is the LogContext.getSystemLogContext()
         final LogContext logContext = LogContext.getLogContext();
-        final LoggerContext currentContext = logContext.getAttachment("", CONTEXT_KEY);
-        if (currentContext != null && currentContext.equals(context)) {
-            final Logger rootLogger = logContext.getLogger("");
-            rootLogger.detach(CONTEXT_FACTORY_KEY);
-            rootLogger.detach(CONTEXT_KEY);
-            rootLogger.detach(LISTENER_KEY);
+        final Map<Object, LoggerContext> contexts = logContext.getAttachment("", CONTEXT_KEY);
+        if (contexts != null) {
+            synchronized (contexts) {
+                final Iterator<LoggerContext> iter = contexts.values().iterator();
+                while (iter.hasNext()) {
+                    final LoggerContext c = iter.next();
+                    if (c.equals(context)) {
+                        iter.remove();
+                        break;
+                    }
+                }
+                if (contexts.isEmpty()) {
+                    final Logger rootLogger = logContext.getLogger("");
+                    rootLogger.detach(CONTEXT_KEY);
+                    JBossStatusListener.remove(logContext);
+                }
+            }
         }
     }
 
-    private static LoggerContext getLoggerContext(final ClassLoader classLoader, final Object externalContext, final boolean currentContext) {
+    private LoggerContext getLoggerContext(final ClassLoader classLoader, final Object externalContext, final boolean currentContext) {
         if (currentContext || classLoader == null) {
-            return getLoggerContext(LogContext.getLogContext(), externalContext);
+            return getOrCreateLoggerContext(LogContext.getLogContext(), externalContext);
         }
         final ClassLoader current = getTccl();
         try {
             setTccl(classLoader);
-            return getLoggerContext(LogContext.getLogContext(), externalContext);
+            return getOrCreateLoggerContext(LogContext.getLogContext(), externalContext);
         } finally {
             setTccl(current);
         }
     }
 
-    private static LoggerContext getLoggerContext(final LogContext context, final Object externalContext) {
-        final Logger rootLogger = context.getLogger("");
-        LoggerContext result = rootLogger.getAttachment(CONTEXT_KEY);
-        if (result == null) {
-            result = new JBossLoggerContext(context, externalContext);
-            final LoggerContext appearing = rootLogger.attachIfAbsent(CONTEXT_KEY, result);
+    private LoggerContext getOrCreateLoggerContext(final LogContext logContext, final Object externalContext) {
+        final Logger rootLogger = logContext.getLogger("");
+        Map<Object, LoggerContext> contexts = rootLogger.getAttachment(CONTEXT_KEY);
+        if (contexts == null) {
+            contexts = new HashMap<>();
+            final Map<Object, LoggerContext> appearing = rootLogger.attachIfAbsent(CONTEXT_KEY, contexts);
             if (appearing != null) {
-                result = appearing;
+                contexts = appearing;
             }
-            configureStatusListener(context);
         }
-        return result;
-    }
-
-    private static void configureStatusListener(final LogContext context) {
-        final Logger rootLogger = context.getLogger("");
-        // Setup a listener to write status messages to
-        StatusListener listener = rootLogger.getAttachment(LISTENER_KEY);
-        if (listener == null) {
-            listener = new JBossStatusListener();
-            final StatusListener appearingListener = rootLogger.attachIfAbsent(LISTENER_KEY, listener);
-            if (appearingListener != null) {
-                listener = appearingListener;
-            }
-            StatusLogger.getLogger().registerListener(listener);
+        synchronized (contexts) {
+            JBossStatusListener.registerIfAbsent(logContext);
+            return contexts.computeIfAbsent(externalContext, new Function<Object, LoggerContext>() {
+                @Override
+                public LoggerContext apply(final Object o) {
+                    return new JBossLoggerContext(logContext, externalContext);
+                }
+            });
         }
     }
 
