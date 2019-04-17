@@ -44,7 +44,7 @@
     <properties>
         <version.junit>4.12</version.junit>
         <version.org.apache.logging.log4j>2.11.1</version.org.apache.logging.log4j>
-        <version.org.jboss.logmanager.jboss-logmanager>2.1.5.Final</version.org.jboss.logmanager.jboss-logmanager>
+        <version.org.jboss.logmanager.jboss-logmanager>2.1.10.Final</version.org.jboss.logmanager.jboss-logmanager>
     </properties>
 
     <dependencies>
