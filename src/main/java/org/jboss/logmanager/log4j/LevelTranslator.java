@@ -80,7 +80,7 @@ class LevelTranslator {
      * @return the closest match of a JUL level
      */
     java.util.logging.Level translateLevel(final Level level) {
-        final java.util.logging.Level result = log4jToJul.get(level.intLevel());
+        final java.util.logging.Level result = level == null ? null : log4jToJul.get(level.intLevel());
         return result == null ? org.jboss.logmanager.Level.INFO : result;
     }
 
@@ -92,7 +92,18 @@ class LevelTranslator {
      * @return the log4j level
      */
     Level translateLevel(final java.util.logging.Level level) {
-        final Level result = julToLog4j.get(level.intValue());
+        return level == null ? Level.INFO : translateLevel(level.intValue());
+    }
+
+    /**
+     * Translates a {@linkplain java.util.logging.Level#intValue()}  JUL level} to a {@linkplain Level log4j level}.
+     *
+     * @param level the JUL level int value
+     *
+     * @return the log4j level
+     */
+    Level translateLevel(final int level) {
+        final Level result = julToLog4j.get(level);
         return result == null ? Level.INFO : result;
     }
 }
