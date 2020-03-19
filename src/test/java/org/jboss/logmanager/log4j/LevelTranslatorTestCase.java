@@ -80,11 +80,11 @@ public class LevelTranslatorTestCase {
     @Test
     public void testNull() {
         Assert.assertEquals("Expected null log4j level to map to INFO",
-                java.util.logging.Level.INFO, levelTranslator.translateLevel((Level) null));
+                org.jboss.logmanager.Level.DEBUG, levelTranslator.translateLevel((Level) null));
         Assert.assertEquals("Expected null JUL level to map to INFO",
-                Level.INFO, levelTranslator.translateLevel((java.util.logging.Level) null));
+                Level.DEBUG, levelTranslator.translateLevel((java.util.logging.Level) null));
         Assert.assertEquals("Expected a -1 effective level to map to INFO",
-                Level.INFO, levelTranslator.translateLevel(-1));
+                Level.DEBUG, levelTranslator.translateLevel(-1));
     }
 
     private void testLevel(final Level log4jLevel, final java.util.logging.Level julLevel) {
