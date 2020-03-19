@@ -153,7 +153,11 @@ class JBossLogger extends AbstractLogger {
 
     @Override
     public Level getLevel() {
-        return levelTranslator.translateLevel(logger.getLevel());
+        final java.util.logging.Level level = logger.getLevel();
+        if (level != null) {
+            return levelTranslator.translateLevel(level);
+        }
+        return levelTranslator.translateLevel(logger.getEffectiveLevel());
     }
 
     private String getNdc() {
