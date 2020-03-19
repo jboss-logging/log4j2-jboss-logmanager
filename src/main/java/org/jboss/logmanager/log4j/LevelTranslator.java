@@ -30,6 +30,8 @@ import org.apache.logging.log4j.Level;
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 class LevelTranslator {
+    private static final Level DEFAULT_LOG4J_LEVEL = Level.DEBUG;
+    private static final org.jboss.logmanager.Level DEFAULT_LEVEL = org.jboss.logmanager.Level.DEBUG;
     private final Map<Integer, Level> julToLog4j = new HashMap<>();
     private final Map<Integer, java.util.logging.Level> log4jToJul = new HashMap<>();
 
@@ -81,7 +83,7 @@ class LevelTranslator {
      */
     java.util.logging.Level translateLevel(final Level level) {
         final java.util.logging.Level result = level == null ? null : log4jToJul.get(level.intLevel());
-        return result == null ? org.jboss.logmanager.Level.INFO : result;
+        return result == null ? DEFAULT_LEVEL : result;
     }
 
     /**
@@ -92,7 +94,7 @@ class LevelTranslator {
      * @return the log4j level
      */
     Level translateLevel(final java.util.logging.Level level) {
-        return level == null ? Level.INFO : translateLevel(level.intValue());
+        return level == null ? DEFAULT_LOG4J_LEVEL : translateLevel(level.intValue());
     }
 
     /**
@@ -104,6 +106,6 @@ class LevelTranslator {
      */
     Level translateLevel(final int level) {
         final Level result = julToLog4j.get(level);
-        return result == null ? Level.INFO : result;
+        return result == null ? DEFAULT_LOG4J_LEVEL : result;
     }
 }
