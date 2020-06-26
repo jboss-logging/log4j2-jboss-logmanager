@@ -45,6 +45,10 @@
         <version.junit>4.12</version.junit>
         <version.org.apache.logging.log4j>2.13.3</version.org.apache.logging.log4j>
         <version.org.jboss.logmanager.jboss-logmanager>2.1.17.Final</version.org.jboss.logmanager.jboss-logmanager>
+
+        <!-- Using 8 instead of 1.8 works around an issue with generating JavaDoc's on Java 11. -->
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
     <dependencies>
