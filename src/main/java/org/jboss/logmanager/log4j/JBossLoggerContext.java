@@ -22,6 +22,8 @@ package org.jboss.logmanager.log4j;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
 import org.apache.logging.log4j.message.MessageFactory;
@@ -40,6 +42,7 @@ class JBossLoggerContext implements LoggerContext {
     private static final Logger.AttachmentKey<Map<Key, ExtendedLogger>> LOGGER_KEY = new Logger.AttachmentKey<>();
     private final LogContext logContext;
     private final Object externalContext;
+    private final ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
 
     /**
      * Creates a new logger context.
@@ -95,19 +98,29 @@ class JBossLoggerContext implements LoggerContext {
         return false;
     }
 
-    private ExtendedLogger getOrCreateLogger(final Key key) {
-        final Map<Key, ExtendedLogger> loggers = getLoggers(logContext, key.name);
-        synchronized (loggers) {
-            return loggers.computeIfAbsent(key, new Function<Key, ExtendedLogger>() {
-                @Override
-                public ExtendedLogger apply(final Key key) {
-                    if (key.messageFactory == null) {
-                        return new JBossLogger(logContext.getLogger(key.name));
-                    }
-                    return new JBossLogger(logContext.getLogger(key.name), key.messageFactory);
-                }
-            });
-        }
+    @Override
+    public Object getObject(final String key) {
+        return map.get(key);
+    }
+
+    @Override
+    public Object putObject(final String key, final Object value) {
+        return map.put(key, value);
+    }
+
+    @Override
+    public Object putObjectIfAbsent(final String key, final Object value) {
+        return map.putIfAbsent(key, value);
+    }
+
+    @Override
+    public Object removeObject(final String key) {
+        return map.remove(key);
+    }
+
+    @Override
+    public boolean removeObject(final String key, final Object value) {
+        return map.remove(key, value);
     }
 
     @Override
@@ -125,6 +138,21 @@ class JBossLoggerContext implements LoggerContext {
         }
         final JBossLoggerContext other = (JBossLoggerContext) obj;
         return Objects.equals(logContext, other.logContext) && Objects.equals(externalContext, other.externalContext);
+    }
+
+    private ExtendedLogger getOrCreateLogger(final Key key) {
+        final Map<Key, ExtendedLogger> loggers = getLoggers(logContext, key.name);
+        synchronized (loggers) {
+            return loggers.computeIfAbsent(key, new Function<Key, ExtendedLogger>() {
+                @Override
+                public ExtendedLogger apply(final Key key) {
+                    if (key.messageFactory == null) {
+                        return new JBossLogger(logContext.getLogger(key.name));
+                    }
+                    return new JBossLogger(logContext.getLogger(key.name), key.messageFactory);
+                }
+            });
+        }
     }
 
     private static Map<Key, ExtendedLogger> getLoggers(final LogContext context, final String name) {
