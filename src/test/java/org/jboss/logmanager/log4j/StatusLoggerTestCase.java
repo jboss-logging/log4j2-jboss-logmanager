@@ -30,10 +30,10 @@ import org.apache.logging.log4j.status.StatusData;
 import org.apache.logging.log4j.status.StatusListener;
 import org.apache.logging.log4j.status.StatusLogger;
 import org.jboss.logmanager.ExtLogRecord;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -43,7 +43,7 @@ public class StatusLoggerTestCase extends AbstractTestCase {
     private org.jboss.logmanager.Logger lmLogger;
     private StatusLogger statusLogger;
 
-    @Before
+    @BeforeEach
     public void setup() {
         lmLogger = org.jboss.logmanager.Logger.getLogger("");
         final TestQueueHandler handler = new TestQueueHandler();
@@ -57,7 +57,7 @@ public class StatusLoggerTestCase extends AbstractTestCase {
         statusLogger.clear();
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         handler.close();
         lmLogger.removeHandler(handler);
@@ -73,7 +73,7 @@ public class StatusLoggerTestCase extends AbstractTestCase {
                 break;
             }
         }
-        Assert.assertTrue("Expected to find " + JBossStatusListener.class.getName() + " registered: " + statusLogger.getListeners(), found);
+        Assertions.assertTrue(found, "Expected to find " + JBossStatusListener.class.getName() + " registered: " + statusLogger.getListeners());
     }
 
     @Test
@@ -82,8 +82,8 @@ public class StatusLoggerTestCase extends AbstractTestCase {
         statusLogger.error("Test status message");
         checkEmpty(false);
         final ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals("Test status message", record.getFormattedMessage());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals("Test status message", record.getFormattedMessage());
     }
 
     @Test
@@ -98,19 +98,19 @@ public class StatusLoggerTestCase extends AbstractTestCase {
         statusLogger.info("Test info message 2");
         checkEmpty(false);
         final List<StatusData> statusData = statusLogger.getStatusData();
-        Assert.assertEquals("Test info message 2", statusData.get(0).getMessage().getFormattedMessage());
+        Assertions.assertEquals("Test info message 2", statusData.get(0).getMessage().getFormattedMessage());
     }
 
     @Test
     public void testConfiguration() throws Exception {
         final URI config = LoggerContextTestCase.class.getResource("/log4j2.xml").toURI();
         final LoggerContext loggerContext = LogManager.getContext(LoggerContextTestCase.class.getClassLoader(), true, config);
-        Assert.assertNotNull(loggerContext);
+        Assertions.assertNotNull(loggerContext);
         // The status logger should contain a message
         checkEmpty(false);
         final List<StatusData> statusData = statusLogger.getStatusData();
         final String foundMsg = statusData.get(0).getMessage().getFormattedMessage();
-        Assert.assertTrue(String.format("Expected the log message to contain %s. Found %s", config, foundMsg), foundMsg.contains(config.toString()));
+        Assertions.assertTrue(foundMsg.contains(config.toString()), String.format("Expected the log message to contain %s. Found %s", config, foundMsg));
     }
 
     private void checkEmpty(final boolean expectEmpty) {
@@ -118,7 +118,7 @@ public class StatusLoggerTestCase extends AbstractTestCase {
             final StringBuilder msg = new StringBuilder("Expect the data to ");
             if (expectEmpty) {
                 msg.append("be empty, found:")
-                   .append(System.lineSeparator());
+                        .append(System.lineSeparator());
                 final Iterator<StatusData> iter = statusLogger.getStatusData().iterator();
                 while (iter.hasNext()) {
                     msg.append(iter.next().getFormattedStatus());
@@ -129,7 +129,7 @@ public class StatusLoggerTestCase extends AbstractTestCase {
             } else {
                 msg.append("not be empty");
             }
-            Assert.fail(msg.toString());
+            Assertions.fail(msg.toString());
         }
     }
 }

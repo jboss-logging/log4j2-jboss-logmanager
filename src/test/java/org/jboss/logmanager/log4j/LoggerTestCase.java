@@ -34,10 +34,10 @@ import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MessageFactory;
 import org.apache.logging.log4j.message.MessageFactory2;
 import org.jboss.logmanager.ExtLogRecord;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -49,7 +49,7 @@ public class LoggerTestCase extends AbstractTestCase {
     private TestQueueHandler handler;
     private org.jboss.logmanager.Logger lmLogger;
 
-    @Before
+    @BeforeEach
     public void setup() {
         lmLogger = org.jboss.logmanager.Logger.getLogger("org.jboss.logmanager.log4j");
         lmLogger.setLevel(java.util.logging.Level.INFO);
@@ -58,7 +58,7 @@ public class LoggerTestCase extends AbstractTestCase {
         this.handler = handler;
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         handler.close();
         lmLogger.removeHandler(handler);
@@ -69,46 +69,47 @@ public class LoggerTestCase extends AbstractTestCase {
         final Logger logger = LogManager.getLogger(loggerName);
         logger.info("Test message");
         ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals("Test message", record.getMessage());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals("Test message", record.getMessage());
 
         logger.info("Test message parameter {}", 1);
         record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals("Test message parameter 1", record.getMessage());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals("Test message parameter 1", record.getMessage());
     }
 
+    @SuppressWarnings("PlaceholderCountMatchesArgumentCount")
     @Test
     public void testNamedFormatterLogger() {
         final Logger logger = LogManager.getFormatterLogger(loggerName);
         logger.info("Test message parameter %s", 1);
         final ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals("Test message parameter 1", record.getMessage());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals("Test message parameter 1", record.getMessage());
     }
 
     @Test
     public void testCurrentClassLogger() {
         final String expectedName = LoggerTestCase.class.getName();
         final Logger logger = LogManager.getLogger();
-        Assert.assertEquals(expectedName, logger.getName());
+        Assertions.assertEquals(expectedName, logger.getName());
         logger.info("Test message");
         final ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals("Test message", record.getMessage());
-        Assert.assertEquals(expectedName, record.getLoggerName());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals("Test message", record.getMessage());
+        Assertions.assertEquals(expectedName, record.getLoggerName());
     }
 
     @Test
     public void testObjectLogger() {
         final String expectedName = LoggerTestCase.class.getName();
         final Logger logger = LogManager.getLogger(this);
-        Assert.assertEquals(expectedName, logger.getName());
+        Assertions.assertEquals(expectedName, logger.getName());
         logger.info("Test message");
         final ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals("Test message", record.getMessage());
-        Assert.assertEquals(expectedName, record.getLoggerName());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals("Test message", record.getMessage());
+        Assertions.assertEquals(expectedName, record.getLoggerName());
     }
 
     @Test
@@ -117,12 +118,12 @@ public class LoggerTestCase extends AbstractTestCase {
         final String expectedName = LoggerTestCase.class.getName();
         final MessageFactory messageFactory = new TestMessageFactory(prefix);
         final Logger logger = LogManager.getLogger(messageFactory);
-        Assert.assertEquals(expectedName, logger.getName());
+        Assertions.assertEquals(expectedName, logger.getName());
         logger.info("Test message");
         final ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals(prefix + "Test message", record.getMessage());
-        Assert.assertEquals(expectedName, record.getLoggerName());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals(prefix + "Test message", record.getMessage());
+        Assertions.assertEquals(expectedName, record.getLoggerName());
     }
 
     @Test
@@ -131,12 +132,12 @@ public class LoggerTestCase extends AbstractTestCase {
         final String expectedName = LoggerTestCase.class.getName();
         final MessageFactory messageFactory = new TestMessageFactory(prefix);
         final Logger logger = LogManager.getLogger(this, messageFactory);
-        Assert.assertEquals(expectedName, logger.getName());
+        Assertions.assertEquals(expectedName, logger.getName());
         logger.info("Test message");
         final ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals(prefix + "Test message", record.getMessage());
-        Assert.assertEquals(expectedName, record.getLoggerName());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals(prefix + "Test message", record.getMessage());
+        Assertions.assertEquals(expectedName, record.getLoggerName());
     }
 
     @Test
@@ -145,12 +146,12 @@ public class LoggerTestCase extends AbstractTestCase {
         final String expectedName = loggerName;
         final MessageFactory messageFactory = new TestMessageFactory(prefix);
         final Logger logger = LogManager.getLogger(loggerName, messageFactory);
-        Assert.assertEquals(expectedName, logger.getName());
+        Assertions.assertEquals(expectedName, logger.getName());
         logger.info("Test message");
         final ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals(prefix + "Test message", record.getMessage());
-        Assert.assertEquals(expectedName, record.getLoggerName());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals(prefix + "Test message", record.getMessage());
+        Assertions.assertEquals(expectedName, record.getLoggerName());
     }
 
     @Test
@@ -159,12 +160,12 @@ public class LoggerTestCase extends AbstractTestCase {
         final String expectedName = LoggerTestCase.class.getName();
         final MessageFactory messageFactory = new TestMessageFactory(prefix);
         final Logger logger = LogManager.getLogger(LoggerTestCase.class, messageFactory);
-        Assert.assertEquals(expectedName, logger.getName());
+        Assertions.assertEquals(expectedName, logger.getName());
         logger.info("Test message");
         final ExtLogRecord record = handler.poll();
-        Assert.assertNotNull(record);
-        Assert.assertEquals(prefix + "Test message", record.getMessage());
-        Assert.assertEquals(expectedName, record.getLoggerName());
+        Assertions.assertNotNull(record);
+        Assertions.assertEquals(prefix + "Test message", record.getMessage());
+        Assertions.assertEquals(expectedName, record.getLoggerName());
     }
 
     @Test
@@ -220,26 +221,26 @@ public class LoggerTestCase extends AbstractTestCase {
     private void testLevelEnabled(final Logger logger, final Level level) {
         final String msg = String.format("Expected level %s to be enabled on logger %s", level, logger);
         final String markerMsg = String.format("Expected level %s to be enabled on logger %s with marker %s", level, logger, marker);
-        Assert.assertTrue(msg, logger.isEnabled(level));
-        Assert.assertTrue(markerMsg, logger.isEnabled(level, marker));
+        Assertions.assertTrue(logger.isEnabled(level), msg);
+        Assertions.assertTrue(logger.isEnabled(level, marker), markerMsg);
         if (level.equals(Level.FATAL)) {
-            Assert.assertTrue(msg, logger.isFatalEnabled());
-            Assert.assertTrue(markerMsg, logger.isFatalEnabled(marker));
+            Assertions.assertTrue(logger.isFatalEnabled(), msg);
+            Assertions.assertTrue(logger.isFatalEnabled(marker), markerMsg);
         } else if (level.equals(Level.ERROR)) {
-            Assert.assertTrue(msg, logger.isErrorEnabled());
-            Assert.assertTrue(markerMsg, logger.isErrorEnabled(marker));
+            Assertions.assertTrue(logger.isErrorEnabled(), msg);
+            Assertions.assertTrue(logger.isErrorEnabled(marker), markerMsg);
         } else if (level.equals(Level.WARN)) {
-            Assert.assertTrue(msg, logger.isWarnEnabled());
-            Assert.assertTrue(markerMsg, logger.isWarnEnabled(marker));
+            Assertions.assertTrue(logger.isWarnEnabled(), msg);
+            Assertions.assertTrue(logger.isWarnEnabled(marker), markerMsg);
         } else if (level.equals(Level.INFO)) {
-            Assert.assertTrue(msg, logger.isInfoEnabled());
-            Assert.assertTrue(markerMsg, logger.isInfoEnabled(marker));
+            Assertions.assertTrue(logger.isInfoEnabled(), msg);
+            Assertions.assertTrue(logger.isInfoEnabled(marker), markerMsg);
         } else if (level.equals(Level.DEBUG)) {
-            Assert.assertTrue(msg, logger.isDebugEnabled());
-            Assert.assertTrue(markerMsg, logger.isDebugEnabled(marker));
+            Assertions.assertTrue(logger.isDebugEnabled(), msg);
+            Assertions.assertTrue(logger.isDebugEnabled(marker), markerMsg);
         } else if (level.equals(Level.TRACE)) {
-            Assert.assertTrue(msg, logger.isTraceEnabled());
-            Assert.assertTrue(markerMsg, logger.isTraceEnabled(marker));
+            Assertions.assertTrue(logger.isTraceEnabled(), msg);
+            Assertions.assertTrue(logger.isTraceEnabled(marker), markerMsg);
         }
     }
 

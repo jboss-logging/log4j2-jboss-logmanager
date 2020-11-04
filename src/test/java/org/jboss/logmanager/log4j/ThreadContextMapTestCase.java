@@ -23,8 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import org.jboss.logmanager.formatters.PatternFormatter;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -42,12 +42,12 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
 
         logger.info("Test message");
 
-        Assert.assertEquals("test value", handler.pollFormatted());
+        Assertions.assertEquals("test value", handler.pollFormatted());
 
         ThreadContext.remove(key);
 
         logger.info("Test message");
-        Assert.assertEquals("", handler.pollFormatted());
+        Assertions.assertEquals("", handler.pollFormatted());
     }
 
     @Test
@@ -62,13 +62,13 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
         final Logger logger = LogManager.getLogger();
 
         logger.info("Test message");
-        Assert.assertEquals("value-1.value-2.value-3", handler.pollFormatted());
+        Assertions.assertEquals("value-1.value-2.value-3", handler.pollFormatted());
 
         ThreadContext.trim(2);
-        Assert.assertEquals(2, ThreadContext.getDepth());
+        Assertions.assertEquals(2, ThreadContext.getDepth());
 
         logger.info("Test message");
-        Assert.assertEquals("value-1.value-2", handler.pollFormatted());
+        Assertions.assertEquals("value-1.value-2", handler.pollFormatted());
     }
 
 }

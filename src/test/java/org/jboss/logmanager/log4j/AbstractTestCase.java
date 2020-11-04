@@ -27,8 +27,8 @@ import org.jboss.logmanager.ExtHandler;
 import org.jboss.logmanager.ExtLogRecord;
 import org.jboss.logmanager.LogContext;
 import org.jboss.logmanager.LogContextSelector;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -48,12 +48,12 @@ public class AbstractTestCase {
         }
     }
 
-    @Before
+    @BeforeEach
     public void logContextSetup() {
         LogContext.setLogContextSelector(new TestLogContextSelector(LogContext.create()));
     }
 
-    @After
+    @AfterEach
     public void resetLogContext() {
         LogContext.setLogContextSelector(LogContext.DEFAULT_LOG_CONTEXT_SELECTOR);
     }
