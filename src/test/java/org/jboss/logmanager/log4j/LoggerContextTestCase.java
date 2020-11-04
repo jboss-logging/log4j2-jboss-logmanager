@@ -21,6 +21,7 @@ package org.jboss.logmanager.log4j;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.StringFormatterMessageFactory;
 import org.apache.logging.log4j.spi.LoggerContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +36,9 @@ public class LoggerContextTestCase extends AbstractTestCase {
         final LoggerContext loggerContext = LogManager.getContext();
         final Logger logger = LogManager.getFormatterLogger(LoggerTestCase.class);
         Assert.assertFalse(loggerContext.hasLogger("org.jboss.logmanager"));
-        Assert.assertTrue(loggerContext.hasLogger(logger.getName()));
+        Assert.assertFalse(loggerContext.hasLogger(logger.getName()));
+        Assert.assertTrue(loggerContext.hasLogger(logger.getName(), StringFormatterMessageFactory.INSTANCE));
+        Assert.assertTrue(loggerContext.hasLogger(logger.getName(), StringFormatterMessageFactory.class));
     }
 
     @Test

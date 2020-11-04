@@ -24,25 +24,18 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
 import org.jboss.logmanager.formatters.PatternFormatter;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 public class ThreadContextMapTestCase extends AbstractTestCase {
-    private final org.jboss.logmanager.Logger jbossRootLogger = org.jboss.logmanager.Logger.getLogger("");
-
-    @Before
-    public void setup() {
-        jbossRootLogger.clearHandlers();
-    }
 
     @Test
     public void testPut() {
         final String key = "test.key";
         final TestQueueHandler handler = new TestQueueHandler(new PatternFormatter("%X{" + key + "}"));
-        jbossRootLogger.addHandler(handler);
+        org.jboss.logmanager.Logger.getLogger("").addHandler(handler);
         ThreadContext.put(key, "test value");
 
         final Logger logger = LogManager.getLogger();
@@ -60,7 +53,7 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
     @Test
     public void testPush() {
         final TestQueueHandler handler = new TestQueueHandler(new PatternFormatter("%x"));
-        jbossRootLogger.addHandler(handler);
+        org.jboss.logmanager.Logger.getLogger("").addHandler(handler);
 
         ThreadContext.push("value-1");
         ThreadContext.push("value-2");
