@@ -44,11 +44,6 @@ class JBossLogger extends AbstractLogger {
     private final org.jboss.logmanager.Logger logger;
     private final LevelTranslator levelTranslator = LevelTranslator.getInstance();
 
-    JBossLogger(final org.jboss.logmanager.Logger logger) {
-        super(logger.getName());
-        this.logger = logger;
-    }
-
     JBossLogger(final org.jboss.logmanager.Logger logger, final MessageFactory messageFactory) {
         super(logger.getName(), messageFactory);
         this.logger = logger;
@@ -140,13 +135,17 @@ class JBossLogger extends AbstractLogger {
         if (message != null) {
             final ExtLogRecord record = new ExtLogRecord(levelTranslator.translateLevel(level),
                     message.getFormattedMessage(), ExtLogRecord.FormatStyle.NO_FORMAT, fqcn);
+            if (message.getParameters() != null) {
+                record.setParameters(message.getParameters());
+            }
             if (ThreadContext.isEmpty()) {
                 record.setMdc(Collections.emptyMap());
             } else {
                 record.setMdc(ThreadContext.getContext());
             }
+
             record.setNdc(getNdc());
-            record.setThrown(t);
+            record.setThrown(t == null ? message.getThrowable() : t);
             logger.log(record);
         }
     }

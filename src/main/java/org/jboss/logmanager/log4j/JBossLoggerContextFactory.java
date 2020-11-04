@@ -25,7 +25,7 @@ import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.logging.log4j.spi.LoggerContext;
 import org.apache.logging.log4j.spi.LoggerContextFactory;
@@ -38,9 +38,10 @@ import org.jboss.logmanager.Logger;
  *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-@SuppressWarnings({"SynchronizationOnLocalVariableOrMethodParameter", "Convert2Lambda"})
 public class JBossLoggerContextFactory implements LoggerContextFactory {
     private static final Logger.AttachmentKey<Map<Object, LoggerContext>> CONTEXT_KEY = new Logger.AttachmentKey<>();
+    private static final String ROOT_LOGGER_NAME = "";
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Override
     public LoggerContext getContext(final String fqcn, final ClassLoader loader, final Object externalContext, final boolean currentContext) {
@@ -61,23 +62,29 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
 
     @Override
     public void removeContext(final LoggerContext context) {
-        final LogContext logContext = LogContext.getLogContext();
-        final Map<Object, LoggerContext> contexts = logContext.getAttachment("", CONTEXT_KEY);
-        if (contexts != null) {
-            synchronized (contexts) {
-                final Iterator<LoggerContext> iter = contexts.values().iterator();
-                while (iter.hasNext()) {
-                    final LoggerContext c = iter.next();
-                    if (c.equals(context)) {
-                        iter.remove();
-                        break;
+        // Check the context type and if it's not a JBossLoggerContext there is nothing for us to do.
+        if (context instanceof JBossLoggerContext) {
+            final LogContext logContext = ((JBossLoggerContext) context).getLogContext();
+            lock.lock();
+            try {
+                final Map<Object, LoggerContext> contexts = logContext.getAttachment(ROOT_LOGGER_NAME, CONTEXT_KEY);
+                if (contexts != null) {
+                    final Iterator<LoggerContext> iter = contexts.values().iterator();
+                    while (iter.hasNext()) {
+                        final LoggerContext c = iter.next();
+                        if (c.equals(context)) {
+                            iter.remove();
+                            break;
+                        }
+                    }
+                    if (contexts.isEmpty()) {
+                        final Logger rootLogger = logContext.getLogger(ROOT_LOGGER_NAME);
+                        rootLogger.detach(CONTEXT_KEY);
+                        JBossStatusListener.remove(logContext);
                     }
                 }
-                if (contexts.isEmpty()) {
-                    final Logger rootLogger = logContext.getLogger("");
-                    rootLogger.detach(CONTEXT_KEY);
-                    JBossStatusListener.remove(logContext);
-                }
+            } finally {
+                lock.unlock();
             }
         }
     }
@@ -96,23 +103,18 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
     }
 
     private LoggerContext getOrCreateLoggerContext(final LogContext logContext, final Object externalContext) {
-        final Logger rootLogger = logContext.getLogger("");
-        Map<Object, LoggerContext> contexts = rootLogger.getAttachment(CONTEXT_KEY);
-        if (contexts == null) {
-            contexts = new HashMap<>();
-            final Map<Object, LoggerContext> appearing = rootLogger.attachIfAbsent(CONTEXT_KEY, contexts);
-            if (appearing != null) {
-                contexts = appearing;
+        final Logger rootLogger = logContext.getLogger(ROOT_LOGGER_NAME);
+        lock.lock();
+        try {
+            Map<Object, LoggerContext> contexts = rootLogger.getAttachment(CONTEXT_KEY);
+            if (contexts == null) {
+                contexts = new HashMap<>();
+                rootLogger.attach(CONTEXT_KEY, contexts);
             }
-        }
-        synchronized (contexts) {
             JBossStatusListener.registerIfAbsent(logContext);
-            return contexts.computeIfAbsent(externalContext, new Function<Object, LoggerContext>() {
-                @Override
-                public LoggerContext apply(final Object o) {
-                    return new JBossLoggerContext(logContext, externalContext);
-                }
-            });
+            return contexts.computeIfAbsent(externalContext, o -> new JBossLoggerContext(logContext, externalContext));
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -120,24 +122,16 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
         if (System.getSecurityManager() == null) {
             return Thread.currentThread().getContextClassLoader();
         }
-        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            @Override
-            public ClassLoader run() {
-                return Thread.currentThread().getContextClassLoader();
-            }
-        });
+        return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
     }
 
     private static void setTccl(final ClassLoader classLoader) {
         if (System.getSecurityManager() == null) {
             Thread.currentThread().setContextClassLoader(classLoader);
         } else {
-            AccessController.doPrivileged(new PrivilegedAction<Object>() {
-                @Override
-                public Object run() {
-                    Thread.currentThread().setContextClassLoader(classLoader);
-                    return null;
-                }
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                Thread.currentThread().setContextClassLoader(classLoader);
+                return null;
             });
         }
     }

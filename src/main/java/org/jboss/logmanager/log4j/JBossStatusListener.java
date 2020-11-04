@@ -27,6 +27,8 @@ import org.jboss.logmanager.LogContext;
 import org.jboss.logmanager.Logger;
 
 /**
+ * A status logger which logs to a JBoss Log Manager Logger.
+ *
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 class JBossStatusListener implements StatusListener {
@@ -41,6 +43,11 @@ class JBossStatusListener implements StatusListener {
         level = StatusLogger.getLogger().getLevel();
     }
 
+    /**
+     * Registers a status listener with the log context if one does not already exist.
+     *
+     * @param logContext the log context to possibly register the status listener with
+     */
     static void registerIfAbsent(final LogContext logContext) {
         final Logger logger = logContext.getLogger(NAME);
         StatusListener listener = logger.getAttachment(STATUS_LISTENER_KEY);
@@ -52,9 +59,16 @@ class JBossStatusListener implements StatusListener {
         }
     }
 
+    /**
+     * Removes the status listener from the log context.
+     *
+     * @param logContext the log context to remove the status listener from
+     */
     static void remove(final LogContext logContext) {
-        final Logger logger = logContext.getLogger(NAME);
-        logger.detach(STATUS_LISTENER_KEY);
+        final Logger logger = logContext.getLoggerIfExists(NAME);
+        if (logger != null) {
+            logger.detach(STATUS_LISTENER_KEY);
+        }
     }
 
     @Override
