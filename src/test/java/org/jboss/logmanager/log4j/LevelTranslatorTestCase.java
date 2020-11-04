@@ -20,8 +20,8 @@
 package org.jboss.logmanager.log4j;
 
 import org.apache.logging.log4j.Level;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -79,12 +79,12 @@ public class LevelTranslatorTestCase {
 
     @Test
     public void testNull() {
-        Assert.assertEquals("Expected null log4j level to map to INFO",
-                org.jboss.logmanager.Level.DEBUG, levelTranslator.translateLevel((Level) null));
-        Assert.assertEquals("Expected null JUL level to map to INFO",
-                Level.DEBUG, levelTranslator.translateLevel((java.util.logging.Level) null));
-        Assert.assertEquals("Expected a -1 effective level to map to INFO",
-                Level.DEBUG, levelTranslator.translateLevel(-1));
+        Assertions.assertEquals(org.jboss.logmanager.Level.DEBUG, levelTranslator.translateLevel((Level) null),
+                "Expected null log4j level to map to INFO");
+        Assertions.assertEquals(Level.DEBUG, levelTranslator.translateLevel((java.util.logging.Level) null),
+                "Expected null JUL level to map to INFO");
+        Assertions.assertEquals(Level.DEBUG, levelTranslator.translateLevel(-1), "" +
+                "Expected a -1 effective level to map to INFO");
     }
 
     private void testLevel(final Level log4jLevel, final java.util.logging.Level julLevel) {
@@ -92,9 +92,9 @@ public class LevelTranslatorTestCase {
     }
 
     private void testLevel(final Level log4jLevel, final java.util.logging.Level julLevel, final java.util.logging.Level expectedJulLevel) {
-        Assert.assertEquals(String.format("Expected log4j level %s to equal JUL level %s", log4jLevel, julLevel),
-                log4jLevel, levelTranslator.translateLevel(julLevel));
-        Assert.assertEquals(String.format("Expected JUL level %s to equal log4j level %s", julLevel, log4jLevel),
-                expectedJulLevel, levelTranslator.translateLevel(log4jLevel));
+        Assertions.assertEquals(log4jLevel, levelTranslator.translateLevel(julLevel),
+                String.format("Expected log4j level %s to equal JUL level %s", log4jLevel, julLevel));
+        Assertions.assertEquals(expectedJulLevel, levelTranslator.translateLevel(log4jLevel),
+                String.format("Expected JUL level %s to equal log4j level %s", julLevel, log4jLevel));
     }
 }

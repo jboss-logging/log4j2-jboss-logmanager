@@ -23,8 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.StringFormatterMessageFactory;
 import org.apache.logging.log4j.spi.LoggerContext;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -35,16 +35,16 @@ public class LoggerContextTestCase extends AbstractTestCase {
     public void testHasLogger() {
         final LoggerContext loggerContext = LogManager.getContext();
         final Logger logger = LogManager.getFormatterLogger(LoggerTestCase.class);
-        Assert.assertFalse(loggerContext.hasLogger("org.jboss.logmanager"));
-        Assert.assertFalse(loggerContext.hasLogger(logger.getName()));
-        Assert.assertTrue(loggerContext.hasLogger(logger.getName(), StringFormatterMessageFactory.INSTANCE));
-        Assert.assertTrue(loggerContext.hasLogger(logger.getName(), StringFormatterMessageFactory.class));
+        Assertions.assertFalse(loggerContext.hasLogger("org.jboss.logmanager"));
+        Assertions.assertFalse(loggerContext.hasLogger(logger.getName()));
+        Assertions.assertTrue(loggerContext.hasLogger(logger.getName(), StringFormatterMessageFactory.INSTANCE));
+        Assertions.assertTrue(loggerContext.hasLogger(logger.getName(), StringFormatterMessageFactory.class));
     }
 
     @Test
     public void testExternalContext() {
         final Object externalContext = new Object();
         final LoggerContext loggerContext = LogManager.getContext(LoggerContextTestCase.class.getClassLoader(), true, externalContext);
-        Assert.assertEquals(externalContext, loggerContext.getExternalContext());
+        Assertions.assertEquals(externalContext, loggerContext.getExternalContext());
     }
 }

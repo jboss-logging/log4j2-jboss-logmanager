@@ -42,7 +42,7 @@
     </licenses>
 
     <properties>
-        <version.junit>4.12</version.junit>
+        <version.org.junit>5.7.0</version.org.junit>
         <version.org.apache.logging.log4j>2.13.3</version.org.apache.logging.log4j>
         <version.org.jboss.logmanager.jboss-logmanager>2.1.17.Final</version.org.jboss.logmanager.jboss-logmanager>
 
@@ -51,6 +51,18 @@
         <maven.compiler.target>8</maven.compiler.target>
         <jdk.min.version>1.8</jdk.min.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${version.org.junit}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -66,9 +78,8 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${version.junit}</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

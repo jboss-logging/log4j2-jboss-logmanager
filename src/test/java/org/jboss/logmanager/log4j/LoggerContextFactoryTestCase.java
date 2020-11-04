@@ -21,8 +21,8 @@ package org.jboss.logmanager.log4j;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.LoggerContextFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -32,6 +32,6 @@ public class LoggerContextFactoryTestCase {
     @Test
     public void testCorrectFactory() {
         final LoggerContextFactory factory = LogManager.getFactory();
-        Assert.assertEquals(JBossLoggerContextFactory.class, factory.getClass());
+        Assertions.assertEquals(JBossLoggerContextFactory.class, factory.getClass());
     }
 }
