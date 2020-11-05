@@ -79,7 +79,7 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
                     }
                     if (contexts.isEmpty()) {
                         final Logger rootLogger = logContext.getLogger(ROOT_LOGGER_NAME);
-                        rootLogger.detach(CONTEXT_KEY);
+                        detach(rootLogger);
                         JBossStatusListener.remove(logContext);
                     }
                 }
@@ -123,6 +123,17 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
             logger.attach(CONTEXT_KEY, value);
         } else {
             AccessController.doPrivileged((PrivilegedAction<Map<Object, LoggerContext>>) () -> logger.attach(CONTEXT_KEY, value));
+        }
+    }
+
+    private static void detach(final Logger logger) {
+        if (System.getSecurityManager() == null) {
+            logger.detach(CONTEXT_KEY);
+        } else {
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                logger.detach(CONTEXT_KEY);
+                return null;
+            });
         }
     }
 
