@@ -109,12 +109,20 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
             Map<Object, LoggerContext> contexts = rootLogger.getAttachment(CONTEXT_KEY);
             if (contexts == null) {
                 contexts = new HashMap<>();
-                rootLogger.attach(CONTEXT_KEY, contexts);
+                attach(rootLogger, contexts);
             }
             JBossStatusListener.registerIfAbsent(logContext);
             return contexts.computeIfAbsent(externalContext, o -> new JBossLoggerContext(logContext, externalContext));
         } finally {
             lock.unlock();
+        }
+    }
+
+    private static void attach(final Logger logger, final Map<Object, LoggerContext> value) {
+        if (System.getSecurityManager() == null) {
+            logger.attach(CONTEXT_KEY, value);
+        } else {
+            AccessController.doPrivileged((PrivilegedAction<Map<Object, LoggerContext>>) () -> logger.attach(CONTEXT_KEY, value));
         }
     }
 
