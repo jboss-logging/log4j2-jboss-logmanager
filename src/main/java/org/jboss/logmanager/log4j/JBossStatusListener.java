@@ -19,6 +19,9 @@
 
 package org.jboss.logmanager.log4j;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.status.StatusData;
 import org.apache.logging.log4j.status.StatusListener;
@@ -53,7 +56,7 @@ class JBossStatusListener implements StatusListener {
         StatusListener listener = logger.getAttachment(STATUS_LISTENER_KEY);
         if (listener == null) {
             listener = new JBossStatusListener(logger);
-            if (logger.attachIfAbsent(STATUS_LISTENER_KEY, listener) == null) {
+            if (attachIfAbsent(logger, listener) == null) {
                 StatusLogger.getLogger().registerListener(listener);
             }
         }
@@ -88,6 +91,13 @@ class JBossStatusListener implements StatusListener {
     @Override
     public void close() {
         logger.detach(STATUS_LISTENER_KEY);
+    }
+
+    private static StatusListener attachIfAbsent(final Logger logger, final StatusListener value) {
+        if (System.getSecurityManager() == null) {
+            return logger.attachIfAbsent(STATUS_LISTENER_KEY, value);
+        }
+        return AccessController.doPrivileged((PrivilegedAction<StatusListener>) () -> logger.attachIfAbsent(STATUS_LISTENER_KEY, value));
     }
 
 }
