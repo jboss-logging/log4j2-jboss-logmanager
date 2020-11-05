@@ -70,7 +70,7 @@ class JBossStatusListener implements StatusListener {
     static void remove(final LogContext logContext) {
         final Logger logger = logContext.getLoggerIfExists(NAME);
         if (logger != null) {
-            logger.detach(STATUS_LISTENER_KEY);
+            detach(logger);
         }
     }
 
@@ -90,7 +90,7 @@ class JBossStatusListener implements StatusListener {
 
     @Override
     public void close() {
-        logger.detach(STATUS_LISTENER_KEY);
+        detach(logger);
     }
 
     private static StatusListener attachIfAbsent(final Logger logger, final StatusListener value) {
@@ -98,6 +98,17 @@ class JBossStatusListener implements StatusListener {
             return logger.attachIfAbsent(STATUS_LISTENER_KEY, value);
         }
         return AccessController.doPrivileged((PrivilegedAction<StatusListener>) () -> logger.attachIfAbsent(STATUS_LISTENER_KEY, value));
+    }
+
+    private static void detach(final Logger logger) {
+        if (System.getSecurityManager() == null) {
+            logger.detach(STATUS_LISTENER_KEY);
+        } else {
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                logger.detach(STATUS_LISTENER_KEY);
+                return null;
+            });
+        }
     }
 
 }
