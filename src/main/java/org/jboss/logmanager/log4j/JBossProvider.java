@@ -27,6 +27,6 @@ import org.apache.logging.log4j.spi.Provider;
 public class JBossProvider extends Provider {
 
     public JBossProvider() {
-        super(5, "2.6.0", JBossLoggerContextFactory.class);
+        super(500, "2.6.0", JBossLoggerContextFactory.class);
     }
 }
