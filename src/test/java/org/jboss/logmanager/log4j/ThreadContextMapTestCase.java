@@ -22,17 +22,55 @@ package org.jboss.logmanager.log4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
+import org.jboss.logmanager.MDC;
+import org.jboss.logmanager.NDC;
 import org.jboss.logmanager.formatters.PatternFormatter;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import io.smallrye.common.constraint.Assert;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 public class ThreadContextMapTestCase extends AbstractTestCase {
 
+    @BeforeEach
+    public void clear() {
+        ThreadContext.clearAll();
+        MDC.clear();
+        NDC.clear();
+    }
+
     @Test
-    public void testPut() {
+    public void clearThreadContext() {
+        final String key = "test.clear.key";
+        ThreadContext.put(key, "test clear value");
+
+        Assertions.assertEquals("test clear value", ThreadContext.get(key));
+        Assertions.assertEquals("test clear value", MDC.get(key));
+
+        ThreadContext.clearMap();
+        Assert.assertTrue(ThreadContext.isEmpty());
+        Assert.assertTrue(MDC.isEmpty());
+    }
+
+    @Test
+    public void clearMdc() {
+        final String key = "test.clear.key";
+        ThreadContext.put(key, "test clear value");
+
+        Assertions.assertEquals("test clear value", ThreadContext.get(key));
+        Assertions.assertEquals("test clear value", MDC.get(key));
+
+        MDC.clear();
+        Assert.assertTrue(ThreadContext.isEmpty());
+        Assert.assertTrue(MDC.isEmpty());
+    }
+
+    @Test
+    public void putThreadContext() {
         final String key = "test.key";
         final TestQueueHandler handler = new TestQueueHandler(new PatternFormatter("%X{" + key + "}"));
         org.jboss.logmanager.Logger.getLogger("").addHandler(handler);
@@ -51,7 +89,26 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
     }
 
     @Test
-    public void testPush() {
+    public void putMdc() {
+        final String key = "test.key";
+        final TestQueueHandler handler = new TestQueueHandler(new PatternFormatter("%X{" + key + "}"));
+        org.jboss.logmanager.Logger.getLogger("").addHandler(handler);
+        MDC.put(key, "test value");
+
+        final Logger logger = LogManager.getLogger();
+
+        logger.info("Test message");
+
+        Assertions.assertEquals("test value", handler.pollFormatted());
+
+        ThreadContext.remove(key);
+
+        logger.info("Test message");
+        Assertions.assertEquals("", handler.pollFormatted());
+    }
+
+    @Test
+    public void pushThreadContext() {
         final TestQueueHandler handler = new TestQueueHandler(new PatternFormatter("%x"));
         org.jboss.logmanager.Logger.getLogger("").addHandler(handler);
 
@@ -69,6 +126,34 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
 
         logger.info("Test message");
         Assertions.assertEquals("value-1.value-2", handler.pollFormatted());
+    }
+
+    @Test
+    public void removeThreadContext() {
+        final String key = "test.clear.key";
+        ThreadContext.put(key, "test clear value");
+
+        Assertions.assertEquals("test clear value", ThreadContext.get(key));
+        Assertions.assertEquals("test clear value", MDC.get(key));
+
+        ThreadContext.remove(key);
+
+        Assertions.assertNull(ThreadContext.get(key));
+        Assertions.assertNull(MDC.get(key));
+    }
+
+    @Test
+    public void removeMdc() {
+        final String key = "test.clear.key";
+        MDC.put(key, "test clear value");
+
+        Assertions.assertEquals("test clear value", ThreadContext.get(key));
+        Assertions.assertEquals("test clear value", MDC.get(key));
+
+        MDC.remove(key);
+
+        Assertions.assertNull(ThreadContext.get(key));
+        Assertions.assertNull(MDC.get(key));
     }
 
 }
