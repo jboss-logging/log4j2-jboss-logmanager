@@ -53,12 +53,11 @@ public class ThreadContextMDCMap implements ThreadContextMap {
     @Override
     public Map<String, String> getImmutableMapOrNull() {
         final Map<String, String> copy = MDC.copy();
-        return copy.isEmpty() ? null : copy;
+        return copy.isEmpty() ? null : Map.copyOf(copy);
     }
 
     @Override
     public boolean isEmpty() {
-        // Performance here is not great, but we need to use it as MDC.isEmpty() is not available in the log manager
         return MDC.copy().isEmpty();
     }
 

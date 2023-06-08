@@ -28,6 +28,7 @@ import org.jboss.logmanager.formatters.PatternFormatter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.wildfly.common.Assert;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -50,8 +51,8 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
         Assertions.assertEquals("test clear value", MDC.get(key));
 
         ThreadContext.clearMap();
-        Assertions.assertTrue(ThreadContext.isEmpty());
-        Assertions.assertTrue(MDC.copy().isEmpty());
+        Assert.assertTrue(ThreadContext.isEmpty());
+        Assert.assertTrue(MDC.copy().isEmpty());
     }
 
     @Test
@@ -63,8 +64,8 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
         Assertions.assertEquals("test clear value", MDC.get(key));
 
         MDC.clear();
-        Assertions.assertTrue(ThreadContext.isEmpty());
-        Assertions.assertTrue(MDC.copy().isEmpty());
+        Assert.assertTrue(ThreadContext.isEmpty());
+        Assert.assertTrue(MDC.copy().isEmpty());
     }
 
     @Test
