@@ -41,6 +41,20 @@
         </license>
     </licenses>
 
+
+    <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false"
+         child.scm.url.inherit.append.path="false">
+        <connection>scm:git:git://github.com/jboss-logging/log4j2-jboss-logmanager.git</connection>
+        <developerConnection>scm:git:git@github.com:jboss-logging/log4j2-jboss-logmanager.git</developerConnection>
+        <url>https://github.com/jboss-logging/log4j2-jboss-logmanager/tree/main/</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/jboss-logging/log4j2-jboss-logmanager/issues</url>
+    </issueManagement>
+
     <properties>
         <version.org.junit>5.8.2</version.org.junit>
         <version.org.apache.logging.log4j>2.16.0</version.org.apache.logging.log4j>
