@@ -214,8 +214,10 @@ public class LoggerTestCase extends AbstractTestCase {
 
     @Test
     public void testOffEnabled() {
-        testLevelEnabled(LogManager.getLogger(loggerName), Level.OFF);
-        testLevelEnabled(LogManager.getFormatterLogger(loggerName), Level.OFF);
+        Assertions.assertFalse(LogManager.getLogger(loggerName).isEnabled(Level.OFF));
+        Assertions.assertFalse(LogManager.getLogger(loggerName).isEnabled(Level.OFF, marker));
+        Assertions.assertFalse(LogManager.getFormatterLogger(loggerName).isEnabled(Level.OFF));
+        Assertions.assertFalse(LogManager.getFormatterLogger(loggerName).isEnabled(Level.OFF, marker));
     }
 
     private void testLevelEnabled(final Logger logger, final Level level) {
