@@ -35,7 +35,7 @@ jobs:
           cache: 'maven'
       - name: Build with Maven Java ${{ matrix.java }}
         run: mvn clean verify
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}
