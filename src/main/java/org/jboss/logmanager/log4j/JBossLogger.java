@@ -20,7 +20,6 @@
 package org.jboss.logmanager.log4j;
 
 import java.util.Collections;
-import java.util.Iterator;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
@@ -175,14 +174,6 @@ class JBossLogger extends AbstractLogger {
         if (contextStack.isEmpty()) {
             return "";
         }
-        final StringBuilder result = new StringBuilder();
-        final Iterator<String> iter = contextStack.iterator();
-        while (iter.hasNext()) {
-            result.append(iter.next());
-            if (iter.hasNext()) {
-                result.append('.');
-            }
-        }
-        return result.toString();
+        return String.join(".", contextStack);
     }
 }

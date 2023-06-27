@@ -20,6 +20,7 @@
 package org.jboss.logmanager.log4j;
 
 import org.apache.logging.log4j.spi.Provider;
+import org.apache.logging.log4j.spi.ThreadContextMap;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
@@ -28,5 +29,15 @@ public class JBossProvider extends Provider {
 
     public JBossProvider() {
         super(500, "2.6.0", JBossLoggerContextFactory.class);
+    }
+
+    @Override
+    public String getThreadContextMap() {
+        return ThreadContextMDCMap.class.getName();
+    }
+
+    @Override
+    public Class<? extends ThreadContextMap> loadThreadContextMap() {
+        return ThreadContextMDCMap.class;
     }
 }
