@@ -44,7 +44,8 @@ public class LoggerContextTestCase extends AbstractTestCase {
     @Test
     public void testExternalContext() {
         final Object externalContext = new Object();
-        final LoggerContext loggerContext = LogManager.getContext(LoggerContextTestCase.class.getClassLoader(), true, externalContext);
+        final LoggerContext loggerContext = LogManager.getContext(LoggerContextTestCase.class.getClassLoader(), true,
+                externalContext);
         Assertions.assertEquals(externalContext, loggerContext.getExternalContext());
     }
 }

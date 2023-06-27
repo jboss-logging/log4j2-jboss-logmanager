@@ -91,7 +91,8 @@ public class LevelTranslatorTestCase {
         testLevel(log4jLevel, julLevel, julLevel);
     }
 
-    private void testLevel(final Level log4jLevel, final java.util.logging.Level julLevel, final java.util.logging.Level expectedJulLevel) {
+    private void testLevel(final Level log4jLevel, final java.util.logging.Level julLevel,
+            final java.util.logging.Level expectedJulLevel) {
         Assertions.assertEquals(log4jLevel, levelTranslator.translateLevel(julLevel),
                 String.format("Expected log4j level %s to equal JUL level %s", log4jLevel, julLevel));
         Assertions.assertEquals(expectedJulLevel, levelTranslator.translateLevel(log4jLevel),

@@ -98,7 +98,7 @@ class LevelTranslator {
     }
 
     /**
-     * Translates a {@linkplain java.util.logging.Level#intValue()}  JUL level} to a {@linkplain Level log4j level}.
+     * Translates a {@linkplain java.util.logging.Level#intValue()} JUL level} to a {@linkplain Level log4j level}.
      *
      * @param level the JUL level int value
      *

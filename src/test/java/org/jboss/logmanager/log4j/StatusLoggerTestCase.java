@@ -73,7 +73,8 @@ public class StatusLoggerTestCase extends AbstractTestCase {
                 break;
             }
         }
-        Assertions.assertTrue(found, "Expected to find " + JBossStatusListener.class.getName() + " registered: " + statusLogger.getListeners());
+        Assertions.assertTrue(found,
+                "Expected to find " + JBossStatusListener.class.getName() + " registered: " + statusLogger.getListeners());
     }
 
     @Test
@@ -110,7 +111,8 @@ public class StatusLoggerTestCase extends AbstractTestCase {
         checkEmpty(false);
         final List<StatusData> statusData = statusLogger.getStatusData();
         final String foundMsg = statusData.get(0).getMessage().getFormattedMessage();
-        Assertions.assertTrue(foundMsg.contains(config.toString()), String.format("Expected the log message to contain %s. Found %s", config, foundMsg));
+        Assertions.assertTrue(foundMsg.contains(config.toString()),
+                String.format("Expected the log message to contain %s. Found %s", config, foundMsg));
     }
 
     private void checkEmpty(final boolean expectEmpty) {

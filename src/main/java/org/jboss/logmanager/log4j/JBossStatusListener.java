@@ -79,8 +79,7 @@ class JBossStatusListener implements StatusListener {
         logger.log(
                 levelTranslator.translateLevel(data.getLevel()),
                 data.getMessage().getFormattedMessage(),
-                data.getThrowable()
-        );
+                data.getThrowable());
     }
 
     @Override
@@ -97,7 +96,8 @@ class JBossStatusListener implements StatusListener {
         if (System.getSecurityManager() == null) {
             return logger.attachIfAbsent(STATUS_LISTENER_KEY, value);
         }
-        return AccessController.doPrivileged((PrivilegedAction<StatusListener>) () -> logger.attachIfAbsent(STATUS_LISTENER_KEY, value));
+        return AccessController
+                .doPrivileged((PrivilegedAction<StatusListener>) () -> logger.attachIfAbsent(STATUS_LISTENER_KEY, value));
     }
 
     private static void detach(final Logger logger) {

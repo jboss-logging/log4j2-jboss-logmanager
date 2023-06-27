@@ -44,18 +44,22 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
     private final ReentrantLock lock = new ReentrantLock();
 
     @Override
-    public LoggerContext getContext(final String fqcn, final ClassLoader loader, final Object externalContext, final boolean currentContext) {
+    public LoggerContext getContext(final String fqcn, final ClassLoader loader, final Object externalContext,
+            final boolean currentContext) {
         return getLoggerContext(loader, externalContext, currentContext);
     }
 
     @Override
-    public LoggerContext getContext(final String fqcn, final ClassLoader loader, final Object externalContext, final boolean currentContext, final URI configLocation, final String name) {
+    public LoggerContext getContext(final String fqcn, final ClassLoader loader, final Object externalContext,
+            final boolean currentContext, final URI configLocation, final String name) {
         try {
             return getLoggerContext(loader, externalContext, currentContext);
         } finally {
             // Done in a finally block as the StatusLogger may not be configured until the call to getLoggerContext()
             if (configLocation != null) {
-                StatusLogger.getLogger().warn("Configuration is not allowed for the JBoss Log Manager binding. Ignoring configuration file {}.", configLocation);
+                StatusLogger.getLogger().warn(
+                        "Configuration is not allowed for the JBoss Log Manager binding. Ignoring configuration file {}.",
+                        configLocation);
             }
         }
     }
@@ -89,7 +93,8 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
         }
     }
 
-    private LoggerContext getLoggerContext(final ClassLoader classLoader, final Object externalContext, final boolean currentContext) {
+    private LoggerContext getLoggerContext(final ClassLoader classLoader, final Object externalContext,
+            final boolean currentContext) {
         if (currentContext || classLoader == null) {
             return getOrCreateLoggerContext(LogContext.getLogContext(), externalContext);
         }
@@ -122,7 +127,8 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
         if (System.getSecurityManager() == null) {
             logger.attach(CONTEXT_KEY, value);
         } else {
-            AccessController.doPrivileged((PrivilegedAction<Map<Object, LoggerContext>>) () -> logger.attach(CONTEXT_KEY, value));
+            AccessController
+                    .doPrivileged((PrivilegedAction<Map<Object, LoggerContext>>) () -> logger.attach(CONTEXT_KEY, value));
         }
     }
 
@@ -141,7 +147,8 @@ public class JBossLoggerContextFactory implements LoggerContextFactory {
         if (System.getSecurityManager() == null) {
             return Thread.currentThread().getContextClassLoader();
         }
-        return AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
+        return AccessController
+                .doPrivileged((PrivilegedAction<ClassLoader>) () -> Thread.currentThread().getContextClassLoader());
     }
 
     private static void setTccl(final ClassLoader classLoader) {
