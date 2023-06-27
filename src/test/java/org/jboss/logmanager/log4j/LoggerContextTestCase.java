@@ -1,7 +1,7 @@
 /*
  * JBoss, Home of Professional Open Source.
  *
- * Copyright 2018 Red Hat, Inc., and individual contributors
+ * Copyright 2023 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,8 @@ public class LoggerContextTestCase extends AbstractTestCase {
     @Test
     public void testExternalContext() {
         final Object externalContext = new Object();
-        final LoggerContext loggerContext = LogManager.getContext(LoggerContextTestCase.class.getClassLoader(), true, externalContext);
+        final LoggerContext loggerContext = LogManager.getContext(LoggerContextTestCase.class.getClassLoader(), true,
+                externalContext);
         Assertions.assertEquals(externalContext, loggerContext.getExternalContext());
     }
 }

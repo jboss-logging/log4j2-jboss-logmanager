@@ -1,7 +1,7 @@
 /*
  * JBoss, Home of Professional Open Source.
  *
- * Copyright 2016 Red Hat, Inc., and individual contributors
+ * Copyright 2023 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,8 +79,7 @@ class JBossStatusListener implements StatusListener {
         logger.log(
                 levelTranslator.translateLevel(data.getLevel()),
                 data.getMessage().getFormattedMessage(),
-                data.getThrowable()
-        );
+                data.getThrowable());
     }
 
     @Override
@@ -97,7 +96,8 @@ class JBossStatusListener implements StatusListener {
         if (System.getSecurityManager() == null) {
             return logger.attachIfAbsent(STATUS_LISTENER_KEY, value);
         }
-        return AccessController.doPrivileged((PrivilegedAction<StatusListener>) () -> logger.attachIfAbsent(STATUS_LISTENER_KEY, value));
+        return AccessController
+                .doPrivileged((PrivilegedAction<StatusListener>) () -> logger.attachIfAbsent(STATUS_LISTENER_KEY, value));
     }
 
     private static void detach(final Logger logger) {

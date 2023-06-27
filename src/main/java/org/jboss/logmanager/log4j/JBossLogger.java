@@ -1,7 +1,7 @@
 /*
  * JBoss, Home of Professional Open Source.
  *
- * Copyright 2016 Red Hat, Inc., and individual contributors
+ * Copyright 2023 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,47 +90,58 @@ class JBossLogger extends AbstractLogger {
     }
 
     @Override
-    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1, final Object p2) {
+    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2) {
         return logger.isLoggable(levelTranslator.translateLevel(level));
     }
 
     @Override
-    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1, final Object p2, final Object p3) {
+    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2, final Object p3) {
         return logger.isLoggable(levelTranslator.translateLevel(level));
     }
 
     @Override
-    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1, final Object p2, final Object p3, final Object p4) {
+    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4) {
         return logger.isLoggable(levelTranslator.translateLevel(level));
     }
 
     @Override
-    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1, final Object p2, final Object p3, final Object p4, final Object p5) {
+    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5) {
         return logger.isLoggable(levelTranslator.translateLevel(level));
     }
 
     @Override
-    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1, final Object p2, final Object p3, final Object p4, final Object p5, final Object p6) {
+    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6) {
         return logger.isLoggable(levelTranslator.translateLevel(level));
     }
 
     @Override
-    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1, final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
+    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7) {
         return logger.isLoggable(levelTranslator.translateLevel(level));
     }
 
     @Override
-    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1, final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8) {
+    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7,
+            final Object p8) {
         return logger.isLoggable(levelTranslator.translateLevel(level));
     }
 
     @Override
-    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1, final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7, final Object p8, final Object p9) {
+    public boolean isEnabled(final Level level, final Marker marker, final String message, final Object p0, final Object p1,
+            final Object p2, final Object p3, final Object p4, final Object p5, final Object p6, final Object p7,
+            final Object p8, final Object p9) {
         return logger.isLoggable(levelTranslator.translateLevel(level));
     }
 
     @Override
-    public void logMessage(final String fqcn, final Level level, final Marker marker, final Message message, final Throwable t) {
+    public void logMessage(final String fqcn, final Level level, final Marker marker, final Message message,
+            final Throwable t) {
         // Ignore null messages
         if (message != null) {
             final ExtLogRecord record = new ExtLogRecord(levelTranslator.translateLevel(level),

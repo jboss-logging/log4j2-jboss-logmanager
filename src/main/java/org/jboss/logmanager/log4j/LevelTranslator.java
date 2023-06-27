@@ -1,7 +1,7 @@
 /*
  * JBoss, Home of Professional Open Source.
  *
- * Copyright 2016 Red Hat, Inc., and individual contributors
+ * Copyright 2023 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -98,7 +98,7 @@ class LevelTranslator {
     }
 
     /**
-     * Translates a {@linkplain java.util.logging.Level#intValue()}  JUL level} to a {@linkplain Level log4j level}.
+     * Translates a {@linkplain java.util.logging.Level#intValue()} JUL level} to a {@linkplain Level log4j level}.
      *
      * @param level the JUL level int value
      *

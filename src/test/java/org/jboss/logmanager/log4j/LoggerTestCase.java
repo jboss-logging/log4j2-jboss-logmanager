@@ -1,7 +1,7 @@
 /*
  * JBoss, Home of Professional Open Source.
  *
- * Copyright 2016 Red Hat, Inc., and individual contributors
+ * Copyright 2023 Red Hat, Inc., and individual contributors
  * as indicated by the @author tags.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -220,7 +220,8 @@ public class LoggerTestCase extends AbstractTestCase {
 
     private void testLevelEnabled(final Logger logger, final Level level) {
         final String msg = String.format("Expected level %s to be enabled on logger %s", level, logger);
-        final String markerMsg = String.format("Expected level %s to be enabled on logger %s with marker %s", level, logger, marker);
+        final String markerMsg = String.format("Expected level %s to be enabled on logger %s with marker %s", level, logger,
+                marker);
         Assertions.assertTrue(logger.isEnabled(level), msg);
         Assertions.assertTrue(logger.isEnabled(level, marker), markerMsg);
         if (level.equals(Level.FATAL)) {

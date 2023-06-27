@@ -2,7 +2,7 @@
 <!--
   ~ JBoss, Home of Professional Open Source.
   ~
-  ~ Copyright 2016 Red Hat, Inc., and individual contributors
+  ~ Copyright 2023 Red Hat, Inc., and individual contributors
   ~ as indicated by the @author tags.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,32 +24,41 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss</groupId>
-        <artifactId>jboss-parent</artifactId>
-        <version>39</version>
+        <groupId>org.jboss.logging</groupId>
+        <artifactId>logging-parent</artifactId>
+        <version>1.0.1.Final</version>
     </parent>
 
     <groupId>org.jboss.logmanager</groupId>
     <artifactId>log4j2-jboss-logmanager</artifactId>
-    <version>1.1.2.Final-SNAPSHOT</version>
+    <version>2.0.0.Final-SNAPSHOT</version>
 
     <licenses>
         <license>
             <name>Apache License 2.0</name>
-            <url>http://repository.jboss.org/licenses/apache-2.0.txt</url>
+            <url>https://repository.jboss.org/licenses/apache-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
 
-    <properties>
-        <version.org.junit>5.8.2</version.org.junit>
-        <version.org.apache.logging.log4j>2.16.0</version.org.apache.logging.log4j>
-        <version.org.jboss.logmanager.jboss-logmanager>2.1.18.Final</version.org.jboss.logmanager.jboss-logmanager>
 
-        <!-- Using 8 instead of 1.8 works around an issue with generating JavaDoc's on Java 11. -->
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-        <jdk.min.version>1.8</jdk.min.version>
+    <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false"
+         child.scm.url.inherit.append.path="false">
+        <connection>scm:git:git://github.com/jboss-logging/log4j2-jboss-logmanager.git</connection>
+        <developerConnection>scm:git:git@github.com:jboss-logging/log4j2-jboss-logmanager.git</developerConnection>
+        <url>https://github.com/jboss-logging/log4j2-jboss-logmanager/tree/main/</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/jboss-logging/log4j2-jboss-logmanager/issues</url>
+    </issueManagement>
+
+    <properties>
+        <version.org.junit>5.9.3</version.org.junit>
+        <version.org.apache.logging.log4j>2.20.0</version.org.apache.logging.log4j>
+        <version.org.jboss.logmanager.jboss-logmanager>2.1.19.Final</version.org.jboss.logmanager.jboss-logmanager>
     </properties>
 
     <dependencyManagement>
@@ -87,6 +96,14 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>net.revelc.code</groupId>
+                <artifactId>impsort-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
@@ -96,5 +113,42 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>format-check</id>
+            <build>
+                <plugins>
+                    <!-- Validate formatting -->
+                    <plugin>
+                        <groupId>net.revelc.code.formatter</groupId>
+                        <artifactId>formatter-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>validate-format</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>validate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>net.revelc.code</groupId>
+                        <artifactId>impsort-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>check-import-sort</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
