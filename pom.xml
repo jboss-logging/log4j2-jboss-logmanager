@@ -58,7 +58,8 @@
     <properties>
         <version.org.junit>5.9.3</version.org.junit>
         <version.org.apache.logging.log4j>2.20.0</version.org.apache.logging.log4j>
-        <version.org.jboss.logmanager.jboss-logmanager>3.0.0.Beta1</version.org.jboss.logmanager.jboss-logmanager>
+        <version.org.jboss.logmanager.jboss-logmanager>3.0.0.Beta2</version.org.jboss.logmanager.jboss-logmanager>
+        <version.module-info>2.0</version.module-info>
     </properties>
 
     <dependencyManagement>
@@ -110,6 +111,20 @@
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                     </systemPropertyVariables>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.github.dmlloyd.module-info</groupId>
+                <artifactId>module-info</artifactId>
+                <version>${version.module-info}</version>
+                <executions>
+                    <execution>
+                        <id>module-info</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

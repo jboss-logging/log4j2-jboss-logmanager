@@ -29,8 +29,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.smallrye.common.constraint.Assert;
-
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
@@ -52,8 +50,8 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
         Assertions.assertEquals("test clear value", MDC.get(key));
 
         ThreadContext.clearMap();
-        Assert.assertTrue(ThreadContext.isEmpty());
-        Assert.assertTrue(MDC.isEmpty());
+        Assertions.assertTrue(ThreadContext.isEmpty());
+        Assertions.assertTrue(MDC.isEmpty());
     }
 
     @Test
@@ -65,8 +63,8 @@ public class ThreadContextMapTestCase extends AbstractTestCase {
         Assertions.assertEquals("test clear value", MDC.get(key));
 
         MDC.clear();
-        Assert.assertTrue(ThreadContext.isEmpty());
-        Assert.assertTrue(MDC.isEmpty());
+        Assertions.assertTrue(ThreadContext.isEmpty());
+        Assertions.assertTrue(MDC.isEmpty());
     }
 
     @Test
