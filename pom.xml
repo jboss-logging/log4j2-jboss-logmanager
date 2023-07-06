@@ -58,7 +58,7 @@
     <properties>
         <version.org.junit>5.9.3</version.org.junit>
         <version.org.apache.logging.log4j>2.20.0</version.org.apache.logging.log4j>
-        <version.org.jboss.logmanager.jboss-logmanager>3.0.0.Beta2</version.org.jboss.logmanager.jboss-logmanager>
+        <version.org.jboss.logmanager.jboss-logmanager>3.0.0.Beta3</version.org.jboss.logmanager.jboss-logmanager>
         <version.module-info>2.0</version.module-info>
     </properties>
 
