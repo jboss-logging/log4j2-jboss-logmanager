@@ -25,6 +25,8 @@ updates:
     ignore:
       - dependency-name: 'org.apache.logging.log4j:*'
         update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: 'org.jboss.logmanager:*'
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
     open-pull-requests-limit: 10
   - package-ecosystem: "github-actions"
     # Workflow files stored in the
