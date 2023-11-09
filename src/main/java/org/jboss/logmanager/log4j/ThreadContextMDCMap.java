@@ -19,6 +19,7 @@
 
 package org.jboss.logmanager.log4j;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.logging.log4j.spi.ThreadContextMap;
@@ -53,7 +54,7 @@ public class ThreadContextMDCMap implements ThreadContextMap {
     @Override
     public Map<String, String> getImmutableMapOrNull() {
         final Map<String, String> copy = MDC.copy();
-        return copy.isEmpty() ? null : copy;
+        return copy.isEmpty() ? null : Collections.unmodifiableMap(copy);
     }
 
     @Override
