@@ -111,4 +111,24 @@
         </plugins>
     </build>
 
+    <profiles>
+        <profile>
+            <id>release</id>
+
+            <!-- Release to JBoss Nexus -->
+            <distributionManagement>
+                <repository>
+                    <id>${jboss.releases.repo.id}</id>
+                    <name>JBoss Releases Repository</name>
+                    <url>${jboss.releases.repo.url}</url>
+                </repository>
+                <snapshotRepository>
+                    <id>${jboss.snapshots.repo.id}</id>
+                    <name>JBoss Snapshots Repository</name>
+                    <url>${jboss.snapshots.repo.url}</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+    </profiles>
+
 </project>
