@@ -17,31 +17,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest ]
-        java: ['11', '17', '20']
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK ${{ matrix.java }}
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: ${{ matrix.java }}
-          cache: 'maven'
-      - name: Build with Maven Java ${{ matrix.java }}
-        run: mvn clean verify
-      - uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}
-          path: '**/surefire-reports/*.txt'
-
   format-check:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -57,3 +32,27 @@ jobs:
       - name: Validate Formatting
         run: |
           mvn -B validate -Pformat-check -Denforcer.skip=true
+  build:
+    needs: format-check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest ]
+        java: ['11', '17', '21']
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+      - name: Build with Maven Java ${{ matrix.java }}
+        run: mvn clean verify
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}
+          path: '**/surefire-reports/*'
