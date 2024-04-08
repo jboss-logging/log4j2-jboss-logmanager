@@ -76,18 +76,33 @@ public class AbstractTestCase {
             collected.addLast(record);
         }
 
+        ExtLogRecord pollFirst() {
+            return collected.pollFirst();
+        }
+
         ExtLogRecord poll() {
             return collected.pollLast();
         }
 
         String pollFormatted() {
-            final ExtLogRecord record = poll();
+            return format(poll());
+        }
+
+        String pollFirstFormatted() {
+            return format(pollFirst());
+        }
+
+        boolean isEmpty() {
+            return collected.isEmpty();
+        }
+
+        private String format(final ExtLogRecord record) {
             if (record == null) {
                 return null;
             }
             final Formatter formatter = getFormatter();
             if (formatter == null) {
-                return record.getFormattedMessage();
+                return record.getMessage();
             }
             return formatter.format(record);
         }

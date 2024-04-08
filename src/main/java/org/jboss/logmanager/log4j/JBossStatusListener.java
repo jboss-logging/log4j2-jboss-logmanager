@@ -38,12 +38,11 @@ class JBossStatusListener implements StatusListener {
     private static final String NAME = "org.jboss.logmanager.log4j.status";
     private static final Logger.AttachmentKey<StatusListener> STATUS_LISTENER_KEY = new Logger.AttachmentKey<>();
     private final Logger logger;
-    private final LevelTranslator levelTranslator = LevelTranslator.getInstance();
-    private final Level level;
+    private final LevelTranslator levelTranslator;
 
-    private JBossStatusListener(final Logger logger) {
+    private JBossStatusListener(final Logger logger, final LevelTranslator levelTranslator) {
         this.logger = logger;
-        level = StatusLogger.getLogger().getLevel();
+        this.levelTranslator = levelTranslator;
     }
 
     /**
@@ -52,10 +51,15 @@ class JBossStatusListener implements StatusListener {
      * @param logContext the log context to possibly register the status listener with
      */
     static void registerIfAbsent(final LogContext logContext) {
-        final Logger logger = logContext.getLogger(NAME);
+        final LevelTranslator levelTranslator = LevelTranslator.getInstance();
+        Logger logger = logContext.getLoggerIfExists(NAME);
+        if (logger == null) {
+            logger = logContext.getLogger(NAME);
+            logger.setLevel(levelTranslator.translateLevel(StatusLogger.getLogger().getFallbackListener().getStatusLevel()));
+        }
         StatusListener listener = logger.getAttachment(STATUS_LISTENER_KEY);
         if (listener == null) {
-            listener = new JBossStatusListener(logger);
+            listener = new JBossStatusListener(logger, levelTranslator);
             if (attachIfAbsent(logger, listener) == null) {
                 StatusLogger.getLogger().registerListener(listener);
             }
@@ -76,15 +80,18 @@ class JBossStatusListener implements StatusListener {
 
     @Override
     public void log(final StatusData data) {
-        logger.log(
-                levelTranslator.translateLevel(data.getLevel()),
-                data.getMessage().getFormattedMessage(),
-                data.getThrowable());
+        // Verify we can log at this level
+        if (getStatusLevel().isLessSpecificThan(data.getLevel())) {
+            logger.log(
+                    levelTranslator.translateLevel(data.getLevel()),
+                    data.getMessage().getFormattedMessage(),
+                    data.getThrowable());
+        }
     }
 
     @Override
     public Level getStatusLevel() {
-        return level;
+        return levelTranslator.translateLevel(logger.getLevel());
     }
 
     @Override
@@ -101,13 +108,15 @@ class JBossStatusListener implements StatusListener {
     }
 
     private static void detach(final Logger logger) {
+        final StatusListener listener;
         if (System.getSecurityManager() == null) {
-            logger.detach(STATUS_LISTENER_KEY);
+            listener = logger.detach(STATUS_LISTENER_KEY);
         } else {
-            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-                logger.detach(STATUS_LISTENER_KEY);
-                return null;
-            });
+            listener = (StatusListener) AccessController
+                    .doPrivileged((PrivilegedAction<Object>) () -> logger.detach(STATUS_LISTENER_KEY));
+        }
+        if (listener != null) {
+            StatusLogger.getLogger().removeListener(listener);
         }
     }
 

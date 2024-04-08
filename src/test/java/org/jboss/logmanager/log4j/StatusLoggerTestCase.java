@@ -20,16 +20,12 @@
 package org.jboss.logmanager.log4j;
 
 import java.net.URI;
-import java.util.Iterator;
-import java.util.List;
 
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.spi.LoggerContext;
-import org.apache.logging.log4j.status.StatusData;
 import org.apache.logging.log4j.status.StatusListener;
 import org.apache.logging.log4j.status.StatusLogger;
-import org.jboss.logmanager.ExtLogRecord;
+import org.jboss.logmanager.Level;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,23 +41,20 @@ public class StatusLoggerTestCase extends AbstractTestCase {
 
     @BeforeEach
     public void setup() {
-        lmLogger = org.jboss.logmanager.Logger.getLogger("");
+        lmLogger = org.jboss.logmanager.Logger.getLogger("org.jboss.logmanager.log4j.status");
         final TestQueueHandler handler = new TestQueueHandler();
         lmLogger.addHandler(handler);
         this.handler = handler;
         // Required to initialize the JBossStatusListener
         LogManager.getContext();
         statusLogger = StatusLogger.getLogger();
-        statusLogger.setLevel(Level.WARN);
-        statusLogger.updateListenerLevel(Level.WARN);
-        statusLogger.clear();
+        lmLogger.setLevel(Level.WARN);
     }
 
     @AfterEach
     public void tearDown() {
         handler.close();
         lmLogger.removeHandler(handler);
-        statusLogger.clear();
     }
 
     @Test
@@ -82,9 +75,9 @@ public class StatusLoggerTestCase extends AbstractTestCase {
         // Log an error which should show up on the handler
         statusLogger.error("Test status message");
         checkEmpty(false);
-        final ExtLogRecord record = handler.poll();
-        Assertions.assertNotNull(record);
-        Assertions.assertEquals("Test status message", record.getFormattedMessage());
+        final String msg = handler.pollFirstFormatted();
+        Assertions.assertNotNull(msg);
+        Assertions.assertEquals("Test status message", msg);
     }
 
     @Test
@@ -94,12 +87,10 @@ public class StatusLoggerTestCase extends AbstractTestCase {
         checkEmpty(true);
 
         // Set the level to warn and log another message
-        //statusLogger.setLevel(Level.INFO);
-        statusLogger.updateListenerLevel(Level.INFO);
+        lmLogger.setLevel(Level.INFO);
         statusLogger.info("Test info message 2");
         checkEmpty(false);
-        final List<StatusData> statusData = statusLogger.getStatusData();
-        Assertions.assertEquals("Test info message 2", statusData.get(0).getMessage().getFormattedMessage());
+        Assertions.assertEquals("Test info message 2", handler.pollFormatted());
     }
 
     @Test
@@ -109,24 +100,20 @@ public class StatusLoggerTestCase extends AbstractTestCase {
         Assertions.assertNotNull(loggerContext);
         // The status logger should contain a message
         checkEmpty(false);
-        final List<StatusData> statusData = statusLogger.getStatusData();
-        final String foundMsg = statusData.get(0).getMessage().getFormattedMessage();
+        final String foundMsg = handler.pollFirstFormatted();
         Assertions.assertTrue(foundMsg.contains(config.toString()),
                 String.format("Expected the log message to contain %s. Found %s", config, foundMsg));
     }
 
     private void checkEmpty(final boolean expectEmpty) {
-        if (statusLogger.getStatusData().isEmpty() != expectEmpty) {
+        if (handler.isEmpty() != expectEmpty) {
             final StringBuilder msg = new StringBuilder("Expect the data to ");
             if (expectEmpty) {
                 msg.append("be empty, found:")
                         .append(System.lineSeparator());
-                final Iterator<StatusData> iter = statusLogger.getStatusData().iterator();
-                while (iter.hasNext()) {
-                    msg.append(iter.next().getFormattedStatus());
-                    if (iter.hasNext()) {
-                        msg.append(System.lineSeparator());
-                    }
+                String logMsg;
+                while ((logMsg = handler.pollFirstFormatted()) != null) {
+                    msg.append(logMsg).append(System.lineSeparator());
                 }
             } else {
                 msg.append("not be empty");
