@@ -18,6 +18,12 @@ An implementation of the log4j-api for the jboss-logmanager.
 </dependency>
 ----
 
+=== Configuration
+
+Configuration is done through the JBoss Log Manager. A `org.apache.logging.log4j.status.StatusListener` is registered
+by default with a backing logger name of `org.jboss.logmanager.log4j.status`. The level at which status messages are
+logged can be configured via this logger.
+
 
 == Building
 
