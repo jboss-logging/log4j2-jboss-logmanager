@@ -19,6 +19,9 @@
 
 package org.jboss.logmanager.log4j;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Map;
 
 import org.apache.logging.log4j.spi.ThreadContextMap;
@@ -30,6 +33,19 @@ import org.jboss.logmanager.MDC;
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
 public class ThreadContextMDCMap implements ThreadContextMap {
+    private static final MethodHandle IS_EMPTY;
+
+    static {
+        // Use MDC.isEmpty() if it's available
+        MethodHandle handle = null;
+        try {
+            handle = MethodHandles.publicLookup()
+                    .findStatic(MDC.class, "isEmpty", MethodType.methodType(boolean.class));
+        } catch (NoSuchMethodException | IllegalAccessException ignore) {
+        }
+        IS_EMPTY = handle;
+    }
+
     @Override
     public void clear() {
         MDC.clear();
@@ -58,7 +74,15 @@ public class ThreadContextMDCMap implements ThreadContextMap {
 
     @Override
     public boolean isEmpty() {
-        return MDC.isEmpty();
+        if (IS_EMPTY != null) {
+            try {
+                return (boolean) IS_EMPTY.invoke();
+            } catch (Throwable ignore) {
+                // Ignore and fall through to the fallback
+            }
+        }
+        // Fallback to a simple copy/isEmpty. This will not perform well, but also is likely not used much
+        return MDC.copy().isEmpty();
     }
 
     @Override
