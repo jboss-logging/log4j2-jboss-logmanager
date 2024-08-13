@@ -105,6 +105,12 @@
                 <artifactId>impsort-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <sourcepath>${project.build.sourceDirectory}</sourcepath>
+                </configuration>
+            </plugin>
+            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
