@@ -55,7 +55,8 @@ class JBossStatusListener implements StatusListener {
         Logger logger = logContext.getLoggerIfExists(NAME);
         if (logger == null) {
             logger = logContext.getLogger(NAME);
-            logger.setLevel(levelTranslator.translateLevel(StatusLogger.getLogger().getFallbackListener().getStatusLevel()));
+            setLogLevel(logger,
+                    levelTranslator.translateLevel(StatusLogger.getLogger().getFallbackListener().getStatusLevel()));
         }
         StatusListener listener = logger.getAttachment(STATUS_LISTENER_KEY);
         if (listener == null) {
@@ -117,6 +118,17 @@ class JBossStatusListener implements StatusListener {
         }
         if (listener != null) {
             StatusLogger.getLogger().removeListener(listener);
+        }
+    }
+
+    private static void setLogLevel(final java.util.logging.Logger logger, final java.util.logging.Level level) {
+        if (System.getSecurityManager() == null) {
+            logger.setLevel(level);
+        } else {
+            AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+                logger.setLevel(level);
+                return null;
+            });
         }
     }
 
