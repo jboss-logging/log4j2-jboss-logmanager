@@ -2,6 +2,9 @@
 
 An implementation of the log4j-api for the jboss-logmanager.
 
+IMPORTANT: As of version 2.0.0.Final, a minimum of Apache log4j 2.23 is required. The 1.1.x version is compatible with
+older versions of Apache log4j.
+
 == Usage
 
 [source,xml]
