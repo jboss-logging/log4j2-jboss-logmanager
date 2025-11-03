@@ -56,7 +56,7 @@
     </issueManagement>
 
     <properties>
-        <version.org.junit>5.13.4</version.org.junit>
+        <version.org.junit>6.0.1</version.org.junit>
         <version.org.apache.logging.log4j>2.24.3</version.org.apache.logging.log4j>
         <version.org.jboss.logmanager.jboss-logmanager>3.0.6.Final</version.org.jboss.logmanager.jboss-logmanager>
         <version.module-info>2.1</version.module-info>
